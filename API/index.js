@@ -7,16 +7,11 @@ const morgan = require('morgan');
 const MongoClient = require('mongodb').MongoClient;
 const app = express();
 require('dotenv').config();
-// Key requirements:
-// ONLY letters for now
-// upper + lower case
-// 16 letters
-// Example: LoHIUvnkVTLvbUIH
 
 // TODO:
-// User model (username + key for now, start date, expiry date later)
+// Key requirements
+// User model (username, start date, expiry date later)
 // Validation depending on model using express-validator npm
-// Host Nodejs app on hosting, setup routes
 // Build runelite/devious, make a key input form + button, send response of validation to in game chat
 
 app.use(helmet());
