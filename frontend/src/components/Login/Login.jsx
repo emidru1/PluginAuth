@@ -14,7 +14,11 @@ async function loginUser(credentials) {
     .then(data => data.json())
 }
 
-const Login = ({ setToken }) => {
+Login.propTypes = {
+    setToken: PropTypes.func.isRequired
+  };
+
+export default function Login({setToken}) {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
 
@@ -43,10 +47,4 @@ const Login = ({ setToken }) => {
         </form>
         </div>
     );
-};
-
-Login.propTypes = {
-    setToken: PropTypes.func.isRequired
-  };
-
-export default Login;
+}
