@@ -1,4 +1,4 @@
-const Joi = require('joi');
+require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const MongoClient = require('mongodb').MongoClient;
 const app = express();
-require('dotenv').config();
+require('mongodb').Logger.setLevel('debug');
 
 // TODO:
 // Key requirements
@@ -25,9 +25,9 @@ app.use(morgan('combined'));
 // Get all information from the collection
 // From  database collection, find ALL items in that collection
 // Return values as an array
-app.get('/api', async (req, res) => {
+app.get('/api/getAll', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.uri);
+    const client = new MongoClient(process.env.URI);
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
@@ -55,10 +55,10 @@ app.get('/api', async (req, res) => {
 // TODO:
 // Validation of the key:
 // 1. Key requirements
-// 2. If key doesnt meet key requirement ruleset - bad request
-app.post('/api/validate', async (req, res) => {
+// 2. If key doesnt meet key requirement ruleset - bad request (to prevent bruteforcing)
+app.post('/api/validateKey', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.uri);
+    const client = new MongoClient(process.env.URI);
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
@@ -85,7 +85,7 @@ app.post('/api/validate', async (req, res) => {
 // Request body validation
 app.post('/api', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.uri);
+    const client = new MongoClient(process.env.URI);
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
@@ -103,9 +103,9 @@ app.post('/api', async (req, res) => {
 });
 
 // Delete key from the database
-app.delete('/api', async (req, res) => {
+app.delete('/api/removeKey', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.uri);
+    const client = new MongoClient(process.env.URI);
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
@@ -129,7 +129,7 @@ app.delete('/api', async (req, res) => {
 // Update old key entry with new key entry
 app.put('/api/updateKey', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.uri);
+    const client = new MongoClient(process.env.URI);
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
@@ -152,7 +152,7 @@ app.put('/api/updateKey', async (req, res) => {
 
 app.put('/api/updateUsername', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.uri);
+    const client = new MongoClient(process.env.URI);
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
@@ -172,7 +172,7 @@ app.put('/api/updateUsername', async (req, res) => {
 });
 
 // Start server
-const port = process.env.port;
+const port = process.env.PORT;
 app.listen(port, () => 
-  console.log(`API successfully started on port ${process.env.port}`)
+  console.log(`API successfully started on port ${process.env.PORT}`)
 );
