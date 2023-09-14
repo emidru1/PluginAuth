@@ -170,7 +170,11 @@ app.put('/api/updateUsername', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
+app.use('/login', (req, res) => {
+  res.send({
+    token: 'test123'
+  });
+});
 // Start server
 const port = process.env.PORT;
 app.listen(port, () => 
