@@ -4,32 +4,30 @@ import NavBar from './components/NavBar/NavBar';
 import Dashboard from './components/Dashboard/Dashboard';
 import Profile from './components/Profile/Profile';
 import Pricing from './components/Pricing/Pricing';
-import Home from './components/Home/Home';
 import Login from './components/Login/Login';
 import SignUp from './components/SignUp/SignUp';
 import useToken from './components/App/useToken';
+import Logout from './components/Logout/Logout';
 
 function App() {
-  const { token, setToken } = useToken();
-
-  if (!token) {
-    return <Login setToken={setToken} />
-  }
+  const { token, setToken, removeToken } = useToken();
 
   return (
     <Router>
-      <Routes>
-        <Route path='/home' element={<Home />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/signup' element={<SignUp />} />
-      </Routes>
-      <NavBar />
-      {/* when authorized, reveal navbar */}
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/pricing" element={<Pricing />} />
-      </Routes>
+      {!token ? (
+        <Login setToken={setToken} />
+      ) : (
+        <>
+          <NavBar />
+          <Routes>
+            <Route path='/login' element={<Login />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/pricing" element={<Pricing />} />
+          </Routes>
+          <Logout removeToken={removeToken} /> 
+        </>
+      )}
     </Router>
   );
 }
