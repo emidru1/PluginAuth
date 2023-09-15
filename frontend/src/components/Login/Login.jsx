@@ -2,7 +2,7 @@
 import React, {useState} from "react";
 import PropTypes from "prop-types";
 import "./Login.css";
-
+import { Link } from 'react-router-dom';
 async function loginUser(credentials) {
     return fetch('http://localhost:3001/login', {
         method: 'POST',
@@ -19,13 +19,13 @@ Login.propTypes = {
   };
 
 export default function Login({setToken}) {
-    const [username, setUsername] = useState();
+    const [email, setEmail] = useState();
     const [password, setPassword] = useState();
 
     const handleSubmit = async e => {
         e.preventDefault();
         const token = await loginUser({
-            username,
+            email,
             password
         });
         setToken(token);
@@ -35,7 +35,7 @@ export default function Login({setToken}) {
             <form onSubmit={handleSubmit}>
             <label>
                 <p>Email</p>
-                <input type="email" onChange={e => setUsername(e.target.value)}/>
+                <input type="email" onChange={e => setEmail(e.target.value)}/>
             </label>
             <label>
                 <p>Password</p>
@@ -44,6 +44,7 @@ export default function Login({setToken}) {
             <div className="login-submit">
                 <button type="submit">Submit</button>
             </div>
+            <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
         </form>
         </div>
     );
