@@ -15,7 +15,13 @@ function App() {
   return (
     <Router>
       {!token ? (
-        <Login setToken={setToken} />
+        <div>
+        <Routes>
+          <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/signup" element={<SignUp setToken={setToken}/>} />
+          <Route path="*" element={<Login setToken={setToken} />} /> {/* default route */}
+        </Routes>
+      </div>
       ) : (
         <>
           <NavBar />

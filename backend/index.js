@@ -6,7 +6,6 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const MongoClient = require('mongodb').MongoClient;
 const app = express();
-require('mongodb').Logger.setLevel('debug');
 
 // TODO:
 // Key requirements
@@ -169,12 +168,21 @@ app.put('/api/updateUsername', async (req, res) => {
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
+/*
+Login and registration should both either use OAUTH2 or JWT tokens for login
+*/
 });
 app.use('/login', (req, res) => {
   res.send({
     token: 'test123'
   });
 });
+app.use('/signup', (req, res) => {
+  res.send({
+    token: 'test123'
+  });
+});
+
 // Start server
 const port = process.env.PORT;
 app.listen(port, () => 
