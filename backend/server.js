@@ -4,7 +4,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose');
+const License = require('./models/License');
+const User = require('./models/User');
+const Software = require('./models/Software');
 const app = express();
 
 // TODO:
@@ -20,7 +23,11 @@ app.use(bodyParser.json());
 app.use(cors());
 // adding morgan to log HTTP requests
 app.use(morgan('combined'));
-
+mongoose.set('strictQuery', true);
+mongoose.connect(process.env.URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 // Get all information from the collection
 // From  database collection, find ALL items in that collection
 // Return values as an array
@@ -30,7 +37,7 @@ app.get('/api/getAll', async (req, res) => {
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION);
+    const collection = db.collection(process.env.DB_COLLECTION_LICENSE);
     
     const col = await collection.find().toArray();
     client.close();
@@ -61,12 +68,12 @@ app.post('/api/validateKey', async (req, res) => {
     await client.connect();
     
     const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION);
+    const collection = db.collection(process.env.DB_COLLECTION_LICENSE);
     const toFind = { key: req.body.key };
     console.log(req.body.key);
     
     const resp = await collection.findOne(toFind);
-    if (resp && resp.username) {
+    if (resp?.username) {
       res.status(200).send(resp.username);
     } else {
       res.status(400).send('400 Bad Request');
@@ -82,19 +89,20 @@ app.post('/api/validateKey', async (req, res) => {
 // Insert key to the database
 // TODO: 
 // Request body validation
-app.post('/api', async (req, res) => {
+app.post('/api/addLicense', async (req, res) => {
+  const userId = new mongoose.Types.ObjectId(req.body.userId);
+  const softwareId = new mongoose.Types.ObjectId(req.body.softwareId);
   try {
-    const client = new MongoClient(process.env.URI);
-    await client.connect();
+    const license = new License({
+      userId: userId,
+      softwareId: softwareId,
+      expirationDate: req.body.expirationDate,
+      key: req.body.key,
+      createdAt: req.body.createdAt
+    });
+    await license.save();
     
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION);
-    
-    const toAdd = { username: req.body.username, key: req.body.key };
-    const resp = await collection.insertOne(toAdd);
-    client.close();
-    
-    res.status(200).send("Key has been successfully inserted to the database");
+    res.status(200).send("License has been successfully inserted to the database");
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
@@ -102,45 +110,39 @@ app.post('/api', async (req, res) => {
 });
 
 // Delete key from the database
-app.delete('/api/removeKey', async (req, res) => {
+app.delete('/api/deleteLicense', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.URI);
-    await client.connect();
-    
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION);
-    
-    const toDelete = { key: req.body.key };
-    const resp = await collection.deleteOne(toDelete);
-    client.close();
-    
-    if (resp.deletedCount > 0) {
-      res.status(200).send("Key has been successfully removed.");
-    } else {
-      res.status(400).send("400 Bad Request");
-    }
+      const licenseKey = req.body.key;
+      if (!licenseKey) {
+          return res.status(400).send("Must provide license key");
+      }
+
+      const result = await License.deleteOne({ key: licenseKey });
+      if (result.deletedCount === 0) {
+          return res.status(404).send("License not found");
+      }
+
+      res.status(200).send("License successfully deleted from the database");
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
+      console.error(err);
+      res.status(500).send('Internal Server Error');
   }
 });
 
-// Update old key entry with new key entry
-app.put('/api/updateKey', async (req, res) => {
+// Update old license entry with new license entry
+app.put('/api/updateLicense', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.URI);
-    await client.connect();
+    const { newLicense, oldLicense } = req.body;
+    if (!newLicense) {
+      return res.status(400).send('Must provide new license key');
+    }
+    const result = await License.updateOne({ key: oldLicense }, { $set: { key: newLicense } });
     
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION);
-    
-    const myquery = { key: req.body.key };
-    const newvalues = { $set: { key: req.body.replacement } };
-    
-    const resp = await collection.updateOne(myquery, newvalues, { upsert: true });
-    client.close();
-    
-    res.status(200).send("Successfully updated key in the database");
+    if (result.nModified === 0) {
+      return res.status(404).send("No license found to update");
+    }
+    res.status(200).send("Successfully updated license key in the database");
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
@@ -151,25 +153,22 @@ app.put('/api/updateKey', async (req, res) => {
 
 app.put('/api/updateUsername', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.URI);
-    await client.connect();
-    
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION);
-    
-    const myquery = { key: req.body.key };
-    const newvalues = { $set: { username: req.body.username } };
-    
-    const resp = await collection.updateOne(myquery, newvalues, { upsert: true });
-    client.close();
-    
+    const { newUsername, oldUsername } = req.body;
+    if(!newUsername) {
+      return res.status(400).send('Must provide new username');
+    }
+    const result = await User.updateOne({ key: req.body.oldUsername }, { $set: { username: newUsername}});
+    if (result.nModified === 0) {
+      return res.status(404).send("No username found to update");
+    }
     res.status(200).send("Successfully updated username in the database");
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
 /*
-Login and registration should both either use OAUTH2 or JWT tokens for login
+Login and registration should both either use OAUTH2(If using 3rd party logins) 
+or JWT tokens for login
 */
 });
 app.use('/login', (req, res) => {
@@ -177,6 +176,7 @@ app.use('/login', (req, res) => {
     token: 'test123'
   });
 });
+
 app.use('/signup', (req, res) => {
   res.send({
     token: 'test123'

@@ -8,6 +8,7 @@ import Login from './components/Login/Login';
 import SignUp from './components/SignUp/SignUp';
 import useToken from './components/App/useToken';
 import Logout from './components/Logout/Logout';
+import SoftwareList from './components/SoftwareList/SoftwareList';
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -30,6 +31,8 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/softwares" element={<SoftwareList />} />
+
           </Routes>
           <Logout removeToken={removeToken} /> 
         </>
