@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const License = require('./models/License');
 const User = require('./models/User');
 const Software = require('./models/Software');
+const bcrypt = require('bcrypt');
+const { ObjectId } = require('mongoose').Types;
 const app = express();
 
 // TODO:
@@ -28,68 +30,40 @@ mongoose.connect(process.env.URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-// Get all information from the collection
-// From  database collection, find ALL items in that collection
-// Return values as an array
-app.get('/api/getAll', async (req, res) => {
+
+//Licenses CRUD
+//Get all licenses
+app.get('/api/licenses', async (req, res) => {
   try {
-    const client = new MongoClient(process.env.URI);
-    await client.connect();
-    
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION_LICENSE);
-    
-    const col = await collection.find().toArray();
-    client.close();
-    
-    if (col && col.length > 0) {
-      res.status(200).send(col);
-    } else {
-      res.status(400).send('400 Bad Request');
+    const result = await License.find({}).exec(); // Using exec() to turn it into a real promise
+    if (result.length === 0) {
+      return res.status(404).send('No licenses found in the database');
     }
+    return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Internal Server Error');
+    return res.status(500).send('Internal Server Error');
   }
 });
 
-
-// Check if the given key is present in the databas
-// If key exists, response is not null, and it returns username associated with the key
-// Otherwise, response is null, and it returns null, aka key doesnt exist
-
-// TODO:
-// Validation of the key:
-// 1. Key requirements
-// 2. If key doesnt meet key requirement ruleset - bad request (to prevent bruteforcing)
-app.post('/api/validateKey', async (req, res) => {
+app.get('/api/licenses:id', async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+    return res.status(404).send("Invalid license id provided");
+  }
   try {
-    const client = new MongoClient(process.env.URI);
-    await client.connect();
-    
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection(process.env.DB_COLLECTION_LICENSE);
-    const toFind = { key: req.body.key };
-    console.log(req.body.key);
-    
-    const resp = await collection.findOne(toFind);
-    if (resp?.username) {
-      res.status(200).send(resp.username);
-    } else {
-      res.status(400).send('400 Bad Request');
+    const result = await License.find({}).exec(); // Using exec() to turn it into a real promise
+    if (result.length === 0) {
+      return res.status(404).send('No licenses found in the database');
     }
-    
-    client.close();
+    return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Internal Server Error');
+    return res.status(500).send('Internal Server Error');
   }
 });
 
-// Insert key to the database
-// TODO: 
-// Request body validation
-app.post('/api/addLicense', async (req, res) => {
+// Add license to the database
+app.post('/api/licenses', async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.body.userId);
   const softwareId = new mongoose.Types.ObjectId(req.body.softwareId);
   try {
@@ -109,8 +83,8 @@ app.post('/api/addLicense', async (req, res) => {
   }
 });
 
-// Delete key from the database
-app.delete('/api/deleteLicense', async (req, res) => {
+// Delete license from the database
+app.delete('/api/licenses', async (req, res) => {
   try {
       const licenseKey = req.body.key;
       if (!licenseKey) {
@@ -129,8 +103,8 @@ app.delete('/api/deleteLicense', async (req, res) => {
   }
 });
 
-// Update old license entry with new license entry
-app.put('/api/updateLicense', async (req, res) => {
+// Update license entry in the database
+app.put('/api/licenses', async (req, res) => {
   try {
     const { newLicense, oldLicense } = req.body;
     if (!newLicense) {
@@ -150,8 +124,7 @@ app.put('/api/updateLicense', async (req, res) => {
 });
 
 // Update old username entry with new username entry using key as parameter
-
-app.put('/api/updateUsername', async (req, res) => {
+app.put('/api/username', async (req, res) => {
   try {
     const { newUsername, oldUsername } = req.body;
     if(!newUsername) {
@@ -166,11 +139,111 @@ app.put('/api/updateUsername', async (req, res) => {
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
+});
+
+//Users CRUD
+//Get all users
+app.get('/api/users', async (req, res) => {
+    try {
+      const result = await User.find({}).exec();
+      if (result.length === 0) {
+        return res.status(404).send("No users found in the database");
+      }
+      return res.status(200).send(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send('Internal Server Error');
+    }
+});
+
+//Get user data that corresponds to id (for example: 507f1f77bcf86cd799439011)
+app.get('/api/users/:id', async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+    return res.status(404).send("Invalid userId provided");
+  }
+  try {
+    const result = await User.find({_id: req.params.id}).exec();
+    if (result.length === 0) {
+      return res.status(404).send("No user found in the database with provided userid");
+    }
+    return res.status(200).send(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send('Internal Server Error');
+  }
+});
+
+// Add new user
+app.post('/api/users', async (req, res) => {
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  try {
+    const user = new User({
+        email: req.body.email,
+        password: hashedPassword,
+        role: req.body.role
+    });
+    const result = await user.save();
+    if(result.length === 0) {
+      return res.status(404).send("User has not been created successfully");
+    }
+    return res.status(200).send(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+
+//Update user information
+app.put('/api/users', async (req, res) => {
+  if (!ObjectId.isValid(req.body._id)) {
+    return res.status(404).send("Invalid userId provided");
+  }
+  try {
+    const userId = req.body._id;
+    let updates = {};
+    if (req.body.email) {
+      updates.email = req.body.email;
+    }
+    if (req.body.password) {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10); 
+      updates.password = hashedPassword;
+    }
+    if (req.body.role) {
+      updates.role = req.body.role;
+    }
+    const result = await User.updateOne({ _id: userId }, { $set: updates });
+    if (result.nModified === 0) {
+      return res.status(404).send("No user was updated");
+    }
+    return res.status(200).send(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+
+app.delete('/api/users', async (req, res) => {
+  if (!ObjectId.isValid(req.body._id)) {
+    return res.status(404).send("Invalid userId provided");
+  }
+  try {
+    const userId = req.body._id;
+    const result = await User.deleteOne({ _id: userId});
+    if(result.deletedCount === 0) {
+      return res.status(404).send("No users were deleted corresponding to that userId");
+    }
+    return res.status(200).send("User deleted successfully");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+
 /*
 Login and registration should both either use OAUTH2(If using 3rd party logins) 
 or JWT tokens for login
 */
-});
+
 app.use('/login', (req, res) => {
   res.send({
     token: 'test123'

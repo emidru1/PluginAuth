@@ -20,7 +20,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route path="/signup" element={<SignUp setToken={setToken}/>} />
-          <Route path="*" element={<Login setToken={setToken} />} /> {/* default route */}
+          <Route path="*" element={<Login setToken={setToken} />} /> 
         </Routes>
       </div>
       ) : (
