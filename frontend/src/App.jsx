@@ -9,6 +9,7 @@ import SignUp from './components/SignUp/SignUp';
 import useToken from './components/App/useToken';
 import Logout from './components/Logout/Logout';
 import SoftwareList from './components/SoftwareList/SoftwareList';
+import Software from './components/Software/Software';
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -32,7 +33,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/softwares" element={<SoftwareList />} />
-
+            <Route path="/softwares/:_id" element={<Software />} />
           </Routes>
           <Logout removeToken={removeToken} /> 
         </>

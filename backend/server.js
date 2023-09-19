@@ -239,6 +239,14 @@ app.delete('/api/users', async (req, res) => {
   }
 });
 
+/* 
+TODO:
+Crud updates:
+Get all licenses of a software
+Get all users using X software
+Get all user X's licenses
+*/
+
 /*
 Login and registration should both either use OAUTH2(If using 3rd party logins) 
 or JWT tokens for login

@@ -44,7 +44,7 @@ export default function Login({setToken}) {
             <div className="login-submit">
                 <button type="submit">Submit</button>
             </div>
-            <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
+            <p>Not a member yet? <Link to="/signup">Sign Up</Link></p>
         </form>
         </div>
     );
