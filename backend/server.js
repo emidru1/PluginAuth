@@ -46,7 +46,7 @@ app.get('/api/licenses', async (req, res) => {
   }
 });
 
-app.get('/api/licenses:id', async (req, res) => {
+app.get('/api/licenses/:id', async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
     return res.status(404).send("Invalid license id provided");
   }
@@ -123,24 +123,6 @@ app.put('/api/licenses', async (req, res) => {
   }
 });
 
-// Update old username entry with new username entry using key as parameter
-app.put('/api/username', async (req, res) => {
-  try {
-    const { newUsername, oldUsername } = req.body;
-    if(!newUsername) {
-      return res.status(400).send('Must provide new username');
-    }
-    const result = await User.updateOne({ key: req.body.oldUsername }, { $set: { username: newUsername}});
-    if (result.nModified === 0) {
-      return res.status(404).send("No username found to update");
-    }
-    res.status(200).send("Successfully updated username in the database");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 //Users CRUD
 //Get all users
 app.get('/api/users', async (req, res) => {
@@ -162,7 +144,7 @@ app.get('/api/users/:id', async (req, res) => {
     return res.status(404).send("Invalid userId provided");
   }
   try {
-    const result = await User.find({_id: req.params.id}).exec();
+    const result = await User.findById({_id: req.params.id}).exec();
     if (result.length === 0) {
       return res.status(404).send("No user found in the database with provided userid");
     }
@@ -238,12 +220,121 @@ app.delete('/api/users', async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 });
+// TODO: Add software CRUD
+/*
+Get all
+Get by id
+post create new
+Put update one
+delete one
+*/
+// Software CRUD
+
+// Get all softwares
+app.get('/api/softwares', async (req, res) => {
+  try {
+    const result = await Software.find({}).exec();
+    if(result.length === 0 ) {
+      return res.status(404).send("No software entries were found in the database");
+    }
+    return res.status(200).send(result);
+
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("Internal server error");
+  }
+});
+
+// Get software data that corresponds to provided id
+app.get('/api/softwares/:id', async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+    return res.status(404).send("Invalid softwareId provided");
+  }
+  try {
+    const software = await Software.findById(req.params.id);
+    if(!software) {
+      return res.status(404).send("No software was found in the database with the provided id");
+    }
+    return res.status(200).send(software);
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+
+app.post('/api/softwares', async (req, res) => {
+  try {
+    const software = new Software({
+      name: req.body.name,
+      version:  req.body.version,
+      description: req.body.description,
+      price: req.body.price,
+      createdAt: req.body.createdAt
+    });
+
+    const result = await software.save();
+    if(!result) {
+      return res.status(404).send("Software was not added to the database");
+    }
+    return res.status(200).send("Software successfully added to the database");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+app.put('/api/softwares', async (req, res) => {
+  if (!ObjectId.isValid(req.body._id)) {
+    return res.status(404).send("Invalid softwareId provided");
+  }
+  try {
+    let updates = {};
+
+    if(req.body.name){
+      updates.name = req.body.name;
+    }
+    if(req.body.version){
+      updates.version = req.body.version;
+    }
+    if(req.body.description){
+      updates.description = req.body.description;
+    }
+    if(req.body.price){
+      updates.price = req.body.price;
+    }
+    const result = await Software.updateOne({ _id: req.body._id }, {$set: updates});
+    if(result.nModified === 0) {
+        return res.status(404).send("No software entries were updated in the database");
+    }
+    return res.status(200).send(result);
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+
+});
+
+app.delete('/api/softwares', async (req, res) => {
+  if (!ObjectId.isValid(req.body._id)) {
+    return res.status(404).send("Invalid softwareId provided");
+  }
+  try {
+    const result = await Software.deleteOne({ _id: req.body._id });
+    if(result.deletedCount === 0) {
+      return res.status(404).send("No software entries were deleted in the database");
+    }
+    return res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+});
 
 /*
 Login and registration should both either use OAUTH2(If using 3rd party logins) 
 or JWT tokens for login
 */
-
 app.use('/login', (req, res) => {
   res.send({
     token: 'test123'
