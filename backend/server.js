@@ -123,24 +123,6 @@ app.put('/api/licenses', async (req, res) => {
   }
 });
 
-// Update old username entry with new username entry using key as parameter
-app.put('/api/username', async (req, res) => {
-  try {
-    const { newUsername, oldUsername } = req.body;
-    if(!newUsername) {
-      return res.status(400).send('Must provide new username');
-    }
-    const result = await User.updateOne({ key: req.body.oldUsername }, { $set: { username: newUsername}});
-    if (result.nModified === 0) {
-      return res.status(404).send("No username found to update");
-    }
-    res.status(200).send("Successfully updated username in the database");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 //Users CRUD
 //Get all users
 app.get('/api/users', async (req, res) => {
@@ -238,12 +220,13 @@ app.delete('/api/users', async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 });
+// TODO: Add software CRUD
+
 
 /*
 Login and registration should both either use OAUTH2(If using 3rd party logins) 
 or JWT tokens for login
 */
-
 app.use('/login', (req, res) => {
   res.send({
     token: 'test123'
