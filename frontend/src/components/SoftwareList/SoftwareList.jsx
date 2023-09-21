@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link }  from 'react-router-dom';
 
 export default function SoftwareList() {
-    const [data, setData] = useState([]);
+    const [softwares, setSoftware] = useState([]);
     useEffect(() => {
         const fetchSoftware = async () => {
             try {
@@ -14,7 +14,7 @@ export default function SoftwareList() {
                 })
                 if(!getSoftwares.ok) throw new Error("Error fetching software list");
                 const softwareList = await getSoftwares.json();
-                setData(softwareList);
+                setSoftware(softwareList);
             } catch(err) {
                 console.log(err);
             }
@@ -26,7 +26,7 @@ export default function SoftwareList() {
             <h1>Software list</h1>
             <ul>
                 {
-                    data.map((software) => (
+                    softwares.map((software) => (
                         <li key={software._id}>
                             <Link to={`/softwares/${software._id}`}>{software.name}</Link>
                         </li>

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 export default function Software() {
     const { _id } = useParams();
-    const [data, setData] = useState(null);
+    const [software, setSoftware] = useState(null);
     const navigate = useNavigate();
     useEffect(() => {
         const fetchSoftwareData = async () => {
@@ -19,8 +19,8 @@ export default function Software() {
                     }
                 });
                 if(!softwareData.ok) throw new Error("Error fetching software data");
-                const software = await softwareData.json();
-                setData(software)
+                const data = await softwareData.json();
+                setSoftware(data)
             } catch (err) {
                 console.log(err);
             }
@@ -31,15 +31,15 @@ export default function Software() {
         navigate(-1); // Return to previous page
     };
     return (
-        <div className="software">
+        <div className="software-details">
             <h1>Software Details</h1>
-            {data && (
+            {software && (
                 <ul>
                     <li>
-                        <p>Name: {data.name}</p>
-                        <p>Version: {data.version}</p>
-                        <p>Description: {data.description}</p>
-                        <p>Price: ${data.price}</p>
+                        <p>Name: {software.name}</p>
+                        <p>Version: {software.version}</p>
+                        <p>Description: {software.description}</p>
+                        <p>Price: ${software.price}</p>
                     </li>
                 </ul>
             )}

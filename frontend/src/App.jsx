@@ -10,6 +10,10 @@ import useToken from './components/App/useToken';
 import Logout from './components/Logout/Logout';
 import SoftwareList from './components/SoftwareList/SoftwareList';
 import Software from './components/Software/Software';
+import User from './components/User/User';
+import UserList from  './components/UserList/UserList';
+import License from './components/License/License';
+import LicenseList from './components/LicenseList/LicenseList';
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -34,6 +38,11 @@ function App() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/softwares" element={<SoftwareList />} />
             <Route path="/softwares/:_id" element={<Software />} />
+            <Route path="/licenses/" element={<LicenseList />} />
+            <Route path="/licenses/:_id" element={<License />} />
+            <Route path="/users" element={<UserList />} />
+            <Route path="/users/:_id" element={<User />} />
+
           </Routes>
           <Logout removeToken={removeToken} /> 
         </>

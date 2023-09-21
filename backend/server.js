@@ -375,6 +375,8 @@ app.get('/api/users/:userId/licenses', async (req, res) => {
 });
 /* 
 TODO:
+Add username to user (?)
+Add names to licenses (?)
 Implement JWT
 Start frontend
 */
