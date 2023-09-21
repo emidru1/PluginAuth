@@ -19,11 +19,8 @@ const app = express();
 // Build runelite/devious, make a key input form + button, send response of validation to in game chat
 
 app.use(helmet());
-// using bodyParser to parse JSON bodies into JS objects
 app.use(bodyParser.json());
-// enabling CORS for all requests
 app.use(cors());
-// adding morgan to log HTTP requests
 app.use(morgan('combined'));
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.URI, {
@@ -35,7 +32,7 @@ mongoose.connect(process.env.URI, {
 //Get all licenses
 app.get('/api/licenses', async (req, res) => {
   try {
-    const result = await License.find({}).exec(); // Using exec() to turn it into a real promise
+    const result = await License.find({}).exec();
     if (result.length === 0) {
       return res.status(404).send('No licenses found in the database');
     }
@@ -51,7 +48,7 @@ app.get('/api/licenses/:id', async (req, res) => {
     return res.status(404).send("Invalid license id provided");
   }
   try {
-    const result = await License.find({}).exec(); // Using exec() to turn it into a real promise
+    const result = await License.find({}).exec();
     if (result.length === 0) {
       return res.status(404).send('No licenses found in the database');
     }
@@ -220,15 +217,6 @@ app.delete('/api/users', async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 });
-// TODO: Add software CRUD
-/*
-Get all
-Get by id
-post create new
-Put update one
-delete one
-*/
-// Software CRUD
 
 // Get all softwares
 app.get('/api/softwares', async (req, res) => {
@@ -262,7 +250,7 @@ app.get('/api/softwares/:id', async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 });
-
+// Add software to the database
 app.post('/api/softwares', async (req, res) => {
   try {
     const software = new Software({
@@ -283,6 +271,7 @@ app.post('/api/softwares', async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 });
+// Update software in the database
 app.put('/api/softwares', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
     return res.status(404).send("Invalid softwareId provided");
@@ -315,6 +304,7 @@ app.put('/api/softwares', async (req, res) => {
 
 });
 
+// Remove software from the database
 app.delete('/api/softwares', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
     return res.status(404).send("Invalid softwareId provided");
@@ -331,17 +321,62 @@ app.delete('/api/softwares', async (req, res) => {
   }
 });
 
+//Get all licenses of a specified software:
+app.get('/api/licenses/:softwareId/licenses', async (req, res) => {
+  if (!ObjectId.isValid(req.params.softwareId)) {
+    return res.status(404).send("Invalid softwareId provided");
+  }
+  try {
+    const result = await License.find({ softwareId: req.params.softwareId});
+    if(result.length === 0) {
+      return res.status(404).send("No license entries found in the database using the softwareId provided");
+    }
+    return res.status(200).send(result);
+  } catch(err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+//Get all users using X software
+app.get('/api/licenses/:softwareId/users', async (req, res) => {
+  if (!ObjectId.isValid(req.params.softwareId)) {
+    return res.status(404).send("Invalid softwareId provided");
+  }
+  try {
+      const result = await License.find({ softwareId: req.params.softwareId});
+  if (result.length === 0) {
+    return res.status(404).send("No users were found with corresponding softwareId")
+  }
+  //After filtering licenses, filter our only userId's
+  const users = result.map(doc => doc.userId);
+  return res.status(200).send(users);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+});
+//Get all selected users licenses
+// Bugged. Returns only 1 id. Check input data for debugging.
+app.get('/api/users/:userId/licenses', async (req, res) => {
+  if(!ObjectId.isValid(req.params.userId)) {
+    return res.status(404).send("Invalid userId provided");
+  }
+  try {
+    const result = await License.find({ userId: req.params.userId });
+    if (result.length === 0) {
+      return res.status(404).send("No licenses found with provided userId");
+    }
+    const licenses = result.map(doc => doc._id);
+    return res.status(200).send(licenses);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+});
 /* 
 TODO:
-Crud updates:
-Get all licenses of a software
-Get all users using X software
-Get all user X's licenses
-*/
-
-/*
-Login and registration should both either use OAUTH2(If using 3rd party logins) 
-or JWT tokens for login
+Implement JWT
+Start frontend
 */
 app.use('/login', (req, res) => {
   res.send({
