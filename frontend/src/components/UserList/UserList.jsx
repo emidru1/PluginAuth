@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 export default function UserList() {
-    const [users, setUsers] = useState([]);
+    const [ users, setUsers ] = useState([]);
 
     useEffect(() => {
         const fetchUserList = async () => {
@@ -27,7 +27,7 @@ export default function UserList() {
                 {
                     users.map((user) => (
                         <li key={user._id}>
-                            <Link to={`/users/${users._id}`}>{user._id}</Link>
+                            <Link to={`/users/${user._id}`}>{user._id}</Link>
                         </li>
                     ))
                 }

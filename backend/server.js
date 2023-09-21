@@ -48,7 +48,7 @@ app.get('/api/licenses/:id', async (req, res) => {
     return res.status(404).send("Invalid license id provided");
   }
   try {
-    const result = await License.find({}).exec();
+    const result = await License.findById({_id: req.params.id});
     if (result.length === 0) {
       return res.status(404).send('No licenses found in the database');
     }

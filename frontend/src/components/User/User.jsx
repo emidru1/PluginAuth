@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 export default function User() {
     const { _id } = useParams();
-    const { user, setUser } = useState(null);
+    const [ user, setUser ] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {

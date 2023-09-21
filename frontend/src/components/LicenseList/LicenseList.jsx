@@ -6,7 +6,7 @@ export default function LicenseList() {
     useEffect(() => {
         const fetchLicenses = async () => {
             try {
-                const getSoftwareList = await fetch('http://localhost:3001/', {
+                const getSoftwareList = await fetch('http://localhost:3001/api/licenses', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
