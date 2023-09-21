@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import './UserList.css';
+
 export default function UserList() {
     const [ users, setUsers ] = useState([]);
 
@@ -23,6 +25,7 @@ export default function UserList() {
     }, []);
     return (
         <div className='user-list'>
+            <h1>User list</h1>
             <ul>
                 {
                     users.map((user) => (

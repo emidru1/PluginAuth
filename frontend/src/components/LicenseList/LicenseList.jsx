@@ -1,6 +1,6 @@
 import { useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
-
+import './LicenseList.css';
 export default function LicenseList() {
     const [licenses, setLicenses] = useState([[]]);
     useEffect(() => {

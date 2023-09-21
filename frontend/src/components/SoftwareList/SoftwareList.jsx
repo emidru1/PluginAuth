@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link }  from 'react-router-dom';
+import './SoftwareList.css';
 
 export default function SoftwareList() {
     const [softwares, setSoftware] = useState([]);

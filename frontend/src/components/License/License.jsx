@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import './License.css';
 
 export default function License() {
     const { _id } = useParams();

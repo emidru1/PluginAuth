@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import './User.css';
 
 export default function User() {
     const { _id } = useParams();

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import  './Software.css';
 
 export default function Software() {
     const { _id } = useParams();
