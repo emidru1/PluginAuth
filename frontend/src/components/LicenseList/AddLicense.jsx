@@ -10,7 +10,7 @@ export default function AddLicense () {
     const [expirationDate, setExpirationDate] = useState("");
     const [feedbackMessage, setFeedbackMessage] = useState('');
 
-            //Should move these methods for fetching to a different component made for that purpose
+            //Should move these methods for fetching to a different component made for that purpose (method reusing)
             const loadUsers = async () => {
                 try {
                     const fetchUsers = await fetch('http://localhost:3001/api/users', {
@@ -49,8 +49,6 @@ export default function AddLicense () {
                     key += characters.charAt(Math.floor(Math.random() * characters.length));
                 }
                 setLicenseKey(key);
-
-                // Logic to compute expiry date (from our previous discussion)
                 const expiration = computeExpiryDate(licenseDuration);
                 setExpirationDate(expiration);
                 console.log("License will expire on:", expiration);

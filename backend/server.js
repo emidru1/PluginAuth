@@ -34,28 +34,28 @@ app.get('/api/licenses', async (req, res) => {
   try {
     const result = await License.find({}).exec();
     if (result.length === 0) {
-      return res.status(404).send('No licenses found in the database');
+      return res.status(404).json({ message: "No licenses found in the database" });
     }
     return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    return res.status(500).send('Internal Server Error');
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
 app.get('/api/licenses/:id', async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
-    return res.status(404).send("Invalid license id provided");
+    return res.status(404).json({ message: "Invalid license id provided" });
   }
   try {
     const result = await License.findById({_id: req.params.id});
     if (result.length === 0) {
-      return res.status(404).send('No licenses found in the database');
+      return res.status(404).json({ message: "No licenses found in the database" });
     }
     return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    return res.status(500).send('Internal Server Error');
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
@@ -78,7 +78,7 @@ app.post('/api/licenses', async (req, res) => {
   } catch (err) {
     console.error(err);
     // Send error response in JSON format
-    res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
@@ -88,18 +88,18 @@ app.delete('/api/licenses', async (req, res) => {
   try {
       const licenseKey = req.body.key;
       if (!licenseKey) {
-          return res.status(400).send("Must provide license key");
+          return res.status(400).json({ error: "Must provide license key" });
       }
 
       const result = await License.deleteOne({ key: licenseKey });
       if (result.deletedCount === 0) {
-          return res.status(404).send("License not found");
+          return res.status(404).json({ error: "License not found" });
       }
 
-      res.status(200).send("License successfully deleted from the database");
+      res.status(200).json({ message: "License successfully deleted from the database" });
   } catch (err) {
       console.error(err);
-      res.status(500).send('Internal Server Error');
+      return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
@@ -108,18 +108,18 @@ app.put('/api/licenses', async (req, res) => {
   try {
     const { newLicense, oldLicense } = req.body;
     if (!newLicense) {
-      return res.status(400).send('Must provide new license key');
+      return res.status(400).json({ error: "Must provide new license key" });
     }
     const result = await License.updateOne({ key: oldLicense }, { $set: { key: newLicense } });
     
     if (result.nModified === 0) {
-      return res.status(404).send("No license found to update");
+      return res.status(404).json({ error: "No license found to update" });
     }
-    res.status(200).send("Successfully updated license key in the database");
+    res.status(200).json({ message: "Successfully updated license key in the database" });
 
   } catch (err) {
     console.error(err);
-    res.status(500).send('Internal Server Error');
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
@@ -129,29 +129,30 @@ app.get('/api/users', async (req, res) => {
     try {
       const result = await User.find({}).exec();
       if (result.length === 0) {
-        return res.status(404).send("No users found in the database");
+        return res.status(404).json({ error: "No users found in the database" });
       }
       return res.status(200).send(result);
     } catch (err) {
       console.error(err);
-      return res.status(500).send('Internal Server Error');
+      return res.status(500).json({ error: 'Internal Server Error'});
     }
 });
 
 //Get user data that corresponds to id (for example: 507f1f77bcf86cd799439011)
 app.get('/api/users/:id', async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
-    return res.status(404).send("Invalid userId provided");
+    return res.status(404).json({ error: "Invalid userId provided" });
   }
   try {
     const result = await User.findById({_id: req.params.id}).exec();
     if (result.length === 0) {
-      return res.status(404).send("No user found in the database with provided userid");
+      return res.status(404).json({ error: "No user found in the database with provided userid" });
     }
     return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    return res.status(500).send('Internal Server Error');
+    return res.status(500).json({ error: 'Internal Server Error'});
+
   }
 });
 
@@ -166,19 +167,19 @@ app.post('/api/users', async (req, res) => {
     });
     const result = await user.save();
     if(result.length === 0) {
-      return res.status(404).send("User has not been created successfully");
+      return res.status(404).json({ error: "User has not been created successfully" });
     }
     return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
 //Update user information
 app.put('/api/users', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).send("Invalid userId provided");
+    return res.status(404).json({ error: "Invalid userId provided" });
   }
   try {
     const userId = req.body._id;
@@ -195,29 +196,29 @@ app.put('/api/users', async (req, res) => {
     }
     const result = await User.updateOne({ _id: userId }, { $set: updates });
     if (result.nModified === 0) {
-      return res.status(404).send("No user was updated");
+      return res.status(404).json({ error: "No user was updated" });
     }
     return res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
 app.delete('/api/users', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).send("Invalid userId provided");
+    return res.status(404).json({ error: "Invalid userId provided" });
   }
   try {
     const userId = req.body._id;
     const result = await User.deleteOne({ _id: userId});
     if(result.deletedCount === 0) {
-      return res.status(404).send("No users were deleted corresponding to that userId");
+      return res.status(404).json({ error: "No users were deleted corresponding to that userId" });
     }
-    return res.status(200).send("User deleted successfully");
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
     console.error(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
@@ -226,31 +227,31 @@ app.get('/api/softwares', async (req, res) => {
   try {
     const result = await Software.find({}).exec();
     if(result.length === 0 ) {
-      return res.status(404).send("No software entries were found in the database");
+      return res.status(404).json({ error: "No software entries were found in the database" });
     }
     return res.status(200).send(result);
 
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
 // Get software data that corresponds to provided id
 app.get('/api/softwares/:id', async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
-    return res.status(404).send("Invalid softwareId provided");
+    return res.status(404).json({ error: "Invalid softwareId provided" });
   }
   try {
     const software = await Software.findById(req.params.id);
     if(!software) {
-      return res.status(404).send("No software was found in the database with the provided id");
+      return res.status(404).json({ error: "No software was found in the database with the provided id" });
     }
     return res.status(200).send(software);
 
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 // Add software to the database
@@ -266,18 +267,18 @@ app.post('/api/softwares', async (req, res) => {
 
     const result = await software.save();
     if(!result) {
-      return res.status(404).send("Software was not added to the database");
+      return res.status(404).json({ error: "Software was not added to the database" });
     }
-    return res.status(200).send("Software successfully added to the database");
+    return res.status(200).json({ message: "Software successfully added to the database" });
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 // Update software in the database
 app.put('/api/softwares', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).send("Invalid softwareId provided");
+    return res.status(404).json({ error: "Invalid softwareId provided" });
   }
   try {
     let updates = {};
@@ -296,88 +297,87 @@ app.put('/api/softwares', async (req, res) => {
     }
     const result = await Software.updateOne({ _id: req.body._id }, {$set: updates});
     if(result.nModified === 0) {
-        return res.status(404).send("No software entries were updated in the database");
+        return res.status(404).json({ error: "No software entries were updated in the database" });
     }
     return res.status(200).send(result);
-
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
-
 });
 
 // Remove software from the database
 app.delete('/api/softwares', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).send("Invalid softwareId provided");
+    return res.status(404).json({ error: "Invalid softwareId provided" });
   }
   try {
     const result = await Software.deleteOne({ _id: req.body._id });
     if(result.deletedCount === 0) {
-      return res.status(404).send("No software entries were deleted in the database");
+      return res.status(404).json({ error: "No software entries were deleted in the database" });
     }
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 
 //Get all licenses of a specified software:
 app.get('/api/licenses/:softwareId/licenses', async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId)) {
-    return res.status(404).send("Invalid softwareId provided");
+    return res.status(404).json({ error: "Invalid softwareId provided" });
   }
   try {
     const result = await License.find({ softwareId: req.params.softwareId});
     if(result.length === 0) {
-      return res.status(404).send("No license entries found in the database using the softwareId provided");
+      return res.status(404).json({ error: "No license entries found in the database using the softwareId provided" });
     }
     return res.status(200).send(result);
   } catch(err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 //Get all users using X software
 app.get('/api/licenses/:softwareId/users', async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId)) {
-    return res.status(404).send("Invalid softwareId provided");
+    return res.status(404).json({ error: "Invalid softwareId provided" });
   }
   try {
       const result = await License.find({ softwareId: req.params.softwareId});
   if (result.length === 0) {
-    return res.status(404).send("No users were found with corresponding softwareId")
+    return res.status(404).json({ error: "No users were found with corresponding softwareId" })
   }
   //After filtering licenses, filter our only userId's
   const users = result.map(doc => doc.userId);
   return res.status(200).send(users);
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 //Get all selected users licenses
 // Bugged. Returns only 1 id. Check input data for debugging.
 app.get('/api/users/:userId/licenses', async (req, res) => {
   if(!ObjectId.isValid(req.params.userId)) {
-    return res.status(404).send("Invalid userId provided");
+    return res.status(404).json({ error: "Invalid userId provided" });
   }
   try {
     const result = await License.find({ userId: req.params.userId });
     if (result.length === 0) {
-      return res.status(404).send("No licenses found with provided userId");
+      return res.status(404).json({ error: "No licenses found with provided userId" });
     }
     const licenses = result.map(doc => doc._id);
     return res.status(200).send(licenses);
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Internal server error");
+    return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
 /* 
 TODO:
+Response messages should be in JSON format.
 Add username to user (?)
 Add names to licenses (?)
 Implement JWT
