@@ -73,11 +73,9 @@ app.post('/api/licenses', async (req, res) => {
     });
     await license.save();
     
-    // Send success response in JSON format
     res.status(200).json({ message: "License has been successfully inserted to the database" });
   } catch (err) {
     console.error(err);
-    // Send error response in JSON format
     return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
@@ -86,12 +84,12 @@ app.post('/api/licenses', async (req, res) => {
 // Delete license from the database
 app.delete('/api/licenses', async (req, res) => {
   try {
-      const licenseKey = req.body.key;
-      if (!licenseKey) {
-          return res.status(400).json({ error: "Must provide license key" });
+      const licenseId = req.body._id;
+      if (!licenseId) {
+          return res.status(400).json({ error: "Must provide license ID" });
       }
 
-      const result = await License.deleteOne({ key: licenseKey });
+      const result = await License.deleteOne({ _id: licenseId });
       if (result.deletedCount === 0) {
           return res.status(404).json({ error: "License not found" });
       }
@@ -377,7 +375,6 @@ app.get('/api/users/:userId/licenses', async (req, res) => {
 });
 /* 
 TODO:
-Response messages should be in JSON format.
 Add username to user (?)
 Add names to licenses (?)
 Implement JWT

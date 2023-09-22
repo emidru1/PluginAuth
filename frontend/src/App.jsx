@@ -14,7 +14,7 @@ import User from './components/User/User';
 import UserList from  './components/UserList/UserList';
 import License from './components/License/License';
 import LicenseList from './components/LicenseList/LicenseList';
-import AddLicense from './components/LicenseList/AddLicense';
+import AddLicense from './components/AddLicense/AddLicense';
 function App() {
   const { token, setToken, removeToken } = useToken();
 

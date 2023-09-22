@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './License.css';
+import RemoveLicense from '../RemoveLicense/RemoveLicense';
 
 export default function License() {
     const { _id } = useParams();
@@ -48,7 +49,9 @@ export default function License() {
                     </li>
                 </ul>
             )}
+            <RemoveLicense />
             <button onClick={handleClick}>Back</button>
+
         </div>
     );
 }

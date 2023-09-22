@@ -2,7 +2,7 @@ import { useEffect, useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import './LicenseList.css';
-import AddLicense from './AddLicense';
+import AddLicense from '../AddLicense/AddLicense';
 
 export default function LicenseList() {
     const [licenses, setLicenses] = useState([]);

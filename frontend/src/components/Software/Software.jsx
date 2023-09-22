@@ -31,7 +31,8 @@ export default function Software() {
         fetchSoftwareData();
     },[_id]);
     const handleClick = () => {
-        navigate(-1); // Return to previous page
+        navigate(-1);
+        
     };
     return (
         <div className="software-details">
