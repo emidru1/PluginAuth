@@ -73,12 +73,15 @@ app.post('/api/licenses', async (req, res) => {
     });
     await license.save();
     
-    res.status(200).send("License has been successfully inserted to the database");
+    // Send success response in JSON format
+    res.status(200).json({ message: "License has been successfully inserted to the database" });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Internal Server Error');
+    // Send error response in JSON format
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Delete license from the database
 app.delete('/api/licenses', async (req, res) => {

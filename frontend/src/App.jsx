@@ -14,7 +14,7 @@ import User from './components/User/User';
 import UserList from  './components/UserList/UserList';
 import License from './components/License/License';
 import LicenseList from './components/LicenseList/LicenseList';
-
+import AddLicense from './components/LicenseList/AddLicense';
 function App() {
   const { token, setToken, removeToken } = useToken();
 
@@ -32,7 +32,6 @@ function App() {
         <>
           <NavBar />
           <Routes>
-            <Route path='/login' element={<Login />} />
             <Route path="/" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
@@ -40,9 +39,9 @@ function App() {
             <Route path="/softwares/:_id" element={<Software />} />
             <Route path="/licenses/" element={<LicenseList />} />
             <Route path="/licenses/:_id" element={<License />} />
+            <Route path="/licenses/addlicense" element={<AddLicense />} />
             <Route path="/users" element={<UserList />} />
             <Route path="/users/:_id" element={<User />} />
-
           </Routes>
           <Logout removeToken={removeToken} /> 
         </>

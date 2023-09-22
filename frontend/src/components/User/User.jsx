@@ -5,6 +5,7 @@ import './User.css';
 export default function User() {
     const { _id } = useParams();
     const [ user, setUser ] = useState(null);
+    const { email, role, createdAt } = user || {};
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,9 +39,9 @@ export default function User() {
             { user && (
                 <ul>
                     <li>
-                        <p>{user.email}</p>
-                        <p>{user.role}</p>
-                        <p>{user.createdAt}</p>
+                        <p>{email}</p>
+                        <p>{role}</p>
+                        <p>{createdAt}</p>
                     </li>
                 </ul>
             )}

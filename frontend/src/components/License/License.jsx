@@ -5,6 +5,7 @@ import './License.css';
 export default function License() {
     const { _id } = useParams();
     const [ license, setLicense ] = useState(null);
+    const { id, softwareId, userId, expirationDate, key, createdAt } = license || {};
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,12 +39,12 @@ export default function License() {
             {license && (
                 <ul>
                     <li>
-                        <p>License ID: {license._id}</p>
-                        <p>Software ID: {license.softwareId}</p>
-                        <p>User ID: {license.userId}</p>
-                        <p>Expiration date: {license.expirationDate}</p>
-                        <p>Key: {license.key}</p>
-                        <p>Created at: {license.createdAt}</p>
+                        <p>License ID: {id}</p>
+                        <p>Software ID: {softwareId}</p>
+                        <p>User ID: {userId}</p>
+                        <p>Expiration date: {expirationDate}</p>
+                        <p>Key: {key}</p>
+                        <p>Created at: {createdAt}</p>
                     </li>
                 </ul>
             )}

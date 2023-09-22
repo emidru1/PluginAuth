@@ -1,8 +1,12 @@
 import { useEffect, useState} from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import './LicenseList.css';
+import AddLicense from './AddLicense';
+
 export default function LicenseList() {
-    const [licenses, setLicenses] = useState([[]]);
+    const [licenses, setLicenses] = useState([]);
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchLicenses = async () => {
             try {
@@ -21,9 +25,13 @@ export default function LicenseList() {
         }
         fetchLicenses();
     },[]);
+    const handleAddLicense = () => {
+        navigate('/licenses/addlicense');
+    }
     return(
         <div className="license-list">
             <h1>License list</h1>
+            <button onClick={handleAddLicense}>Add License</button>
             <ul>
                 { 
                     licenses.map((license) => (

@@ -5,6 +5,8 @@ import  './Software.css';
 export default function Software() {
     const { _id } = useParams();
     const [software, setSoftware] = useState(null);
+    const { name, version, description, price } = software || {};
+
     const navigate = useNavigate();
     useEffect(() => {
         const fetchSoftwareData = async () => {
@@ -37,10 +39,10 @@ export default function Software() {
             {software && (
                 <ul>
                     <li>
-                        <p>Name: {software.name}</p>
-                        <p>Version: {software.version}</p>
-                        <p>Description: {software.description}</p>
-                        <p>Price: ${software.price}</p>
+                        <p>Name: {name}</p>
+                        <p>Version: {version}</p>
+                        <p>Description: {description}</p>
+                        <p>Price: ${price}</p>
                     </li>
                 </ul>
             )}
