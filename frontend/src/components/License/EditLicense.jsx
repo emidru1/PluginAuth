@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
-export default function AddLicense () {
+export default function EditLicense () {
+    const location = useLocation();
+    const license = location.state?.license;
+    const { id, softwareId, userId, expirationDate, key } = license;
     const [users, setUsers] = useState([]);
     const [softwares, setSoftwares] = useState([]);
-    const [softwareId, setSoftwareId] = useState("");
-    const [userId, setUserId] = useState("");
+    const [softId, setSoftId] = useState("");
+    const [uId, setUId] = useState("");
     const [licenseKey, setLicenseKey] = useState("");
     const [licenseDuration, setLicenseDuration] = useState("");
-    const [expirationDate, setExpirationDate] = useState("");
+    const [expiration, setExpiration] = useState("");
     const [feedbackMessage, setFeedbackMessage] = useState('');
 
             //Should move these methods for fetching to a different component made for that purpose (method reusing)
@@ -49,9 +53,9 @@ export default function AddLicense () {
                     key += characters.charAt(Math.floor(Math.random() * characters.length));
                 }
                 setLicenseKey(key);
-                const expiration = computeExpiryDate(licenseDuration);
-                setExpirationDate(expiration);
-                console.log("License will expire on:", expiration);
+                const expiry = computeExpiryDate(licenseDuration);
+                setExpiration(expiry);
+                console.log("License will expire on:", expiry);
             }
             const computeExpiryDate = (hours) => {
                 const currentDate = new Date();
@@ -62,15 +66,15 @@ export default function AddLicense () {
                 e.preventDefault();
             
                 const dataToSend = {
-                    softwareId: softwareId,
-                    userId: userId,
+                    softwareId: softId,
+                    userId: uId,
                     key: licenseKey,
-                    expirationDate: expirationDate
+                    expirationDate: expiration
                 };
             
                 try {
                     const response = await fetch('http://localhost:3001/api/licenses', {
-                        method: 'POST',
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
@@ -78,11 +82,11 @@ export default function AddLicense () {
                     });
             
                     if (!response.ok) {
-                        throw new Error('Failed to submit license data');
+                        throw new Error('Failed to edit license data');
                     }
             
                     const result = await response.json();
-                    console.log('Data saved:', result);
+                    console.log('License edited successfully:', result);
                     setFeedbackMessage(result.message);
                 } catch (error) {
                     console.error('Error submitting data:', error);
@@ -95,14 +99,14 @@ export default function AddLicense () {
             loadUsers();
     }, []);
     return (
-        <div className="create-license">
-            <h1>Create new license</h1>
+        <div className="edit-license">
+            <h1>Edit license - {id}</h1>
             {feedbackMessage && <p>{feedbackMessage}</p>}
             <form onSubmit={handleSubmit}>
                 <label>
                 <p>Software ID</p>
-                <select value={softwareId} onChange={e => setSoftwareId(e.target.value)}>
-                    <option value="">Select a software</option>
+                <select value={softwareId} onChange={e => setSoftId(e.target.value)}>
+                    <option value={softId}>{softId}</option>
                     {
                         softwares.map(software => <option key={software._id} value={software._id}>{software.name}</option>)
                     }
@@ -111,8 +115,8 @@ export default function AddLicense () {
                 <br />
                 <label>
                 <p>User ID</p>
-                <select value={userId} onChange={e => setUserId(e.target.value)}>
-                    <option value="">Select a user</option>
+                <select value={userId} onChange={e => setUId(e.target.value)}>
+                    <option value={uId}>{uId}</option>
                     {
                         users.map(user => <option key={user._id} value={user._id}>{user.email}</option>)
                     }
@@ -120,8 +124,8 @@ export default function AddLicense () {
                 </label>
                 <label>
                 <p>Key valid for</p>
-                    <select onChange={e => setLicenseDuration(e.target.value)}>
-                        <option value="">Select expiry duration</option>
+                    <select value={expirationDate} onChange={e => setLicenseDuration(e.target.value)}>
+                        <option value={expirationDate}>{expirationDate}</option>
                         <option value="24">1 day</option>
                         <option value="72">3 days</option>
                         <option value="168">7 days</option>
@@ -132,11 +136,11 @@ export default function AddLicense () {
                 </label>
                 <label>
                     <p>Key</p>
-                    <input type="text" value={licenseKey} readOnly/>
+                    <input type="text" value={key} readOnly/>
                     <br />
                     <button onClick={e => handleGenerateAndSetExpiry(e)}>Generate</button>
                 </label>
-                    <div className="add-license-submit">
+                    <div className="edit-license-submit">
                         <button type="submit">Submit</button>
                     </div>
             </form>

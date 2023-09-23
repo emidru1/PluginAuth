@@ -102,6 +102,7 @@ app.delete('/api/licenses', async (req, res) => {
 });
 
 // Update license entry in the database
+// Frontend works fine, update all fields that are present (just like in POST request)
 app.put('/api/licenses', async (req, res) => {
   try {
     const { newLicense, oldLicense } = req.body;

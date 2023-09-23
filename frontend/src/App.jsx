@@ -14,7 +14,9 @@ import User from './components/User/User';
 import UserList from  './components/UserList/UserList';
 import License from './components/License/License';
 import LicenseList from './components/LicenseList/LicenseList';
-import AddLicense from './components/AddLicense/AddLicense';
+import AddLicense from './components/LicenseList/AddLicense';
+import EditLicense from './components/License/EditLicense';
+
 function App() {
   const { token, setToken, removeToken } = useToken();
 
@@ -40,6 +42,7 @@ function App() {
             <Route path="/licenses/" element={<LicenseList />} />
             <Route path="/licenses/:_id" element={<License />} />
             <Route path="/licenses/addlicense" element={<AddLicense />} />
+            <Route path="/licenses/edit/:_id" element={<EditLicense/>} />
             <Route path="/users" element={<UserList />} />
             <Route path="/users/:_id" element={<User />} />
           </Routes>

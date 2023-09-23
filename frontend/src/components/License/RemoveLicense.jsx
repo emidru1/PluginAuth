@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function RemoveLicense() {
@@ -25,7 +24,7 @@ export default function RemoveLicense() {
             })
             if(!response.ok) throw new Error("Could not remove license entry from the database");
             const result = await response.json();
-            console.log('Removed license: ' + _id);
+            console.log(result);
             } catch(err) {
                 console.log(err);
             }

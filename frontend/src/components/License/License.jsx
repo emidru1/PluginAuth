@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './License.css';
-import RemoveLicense from '../RemoveLicense/RemoveLicense';
+import RemoveLicense from './RemoveLicense';
 
 export default function License() {
     const { _id } = useParams();
@@ -31,9 +31,12 @@ export default function License() {
     }
     fetchLicenseData();
     },[_id]);
-    const handleClick = () => {
+    const handleBackClick = () => {
         navigate(-1);
     };
+    const handleEditClick = () => {
+        navigate(`/licenses/edit/${license._id}`, { state: { license }});
+    }
     return(
         <div className="license-details">
             <h1>License details</h1>
@@ -50,8 +53,8 @@ export default function License() {
                 </ul>
             )}
             <RemoveLicense />
-            <button onClick={handleClick}>Back</button>
-
+            <button onClick={handleBackClick}>Back</button>
+            <button onClick={() => handleEditClick(license)}>Edit</button>
         </div>
     );
 }
