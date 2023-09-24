@@ -43,7 +43,7 @@ export default function License() {
             {license && (
                 <ul>
                     <li>
-                        <p>License ID: {id}</p>
+                        <p>License ID: {_id}</p>
                         <p>Software ID: {softwareId}</p>
                         <p>User ID: {userId}</p>
                         <p>Expiration date: {expirationDate}</p>

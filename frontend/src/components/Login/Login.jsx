@@ -32,6 +32,7 @@ export default function Login({setToken}) {
     }
     return (
         <div className="login-form">
+            <h1>PluginAuth</h1>
             <form onSubmit={handleSubmit}>
             <label>
                 <p>Email</p>

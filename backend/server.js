@@ -105,16 +105,32 @@ app.delete('/api/licenses', async (req, res) => {
 // Frontend works fine, update all fields that are present (just like in POST request)
 app.put('/api/licenses', async (req, res) => {
   try {
-    const { newLicense, oldLicense } = req.body;
-    if (!newLicense) {
-      return res.status(400).json({ error: "Must provide new license key" });
+    const licenseId = req.body._id;
+    if (!licenseId) {
+      return res.status(400).json({ error: "Must provide license Id" });
     }
-    const result = await License.updateOne({ key: oldLicense }, { $set: { key: newLicense } });
+
+    let updates = {};
+
+    if(req.body.userId){
+      updates.userId = req.body.userId;
+    }
+    if(req.body.softwareId){
+      updates.softwareId = req.body.softwareId;
+    }
+    if(req.body.expirationDate){
+      updates.expirationDate = req.body.expirationDate;
+    }
+    if(req.body.key){
+      updates.key = req.body.key;
+    }
+    
+    const result = await License.updateOne({ _id: req.body._id }, {$set: updates});
     
     if (result.nModified === 0) {
       return res.status(404).json({ error: "No license found to update" });
     }
-    res.status(200).json({ message: "Successfully updated license key in the database" });
+    res.status(200).json({ message: "Successfully updated license in the database" });
 
   } catch (err) {
     console.error(err);

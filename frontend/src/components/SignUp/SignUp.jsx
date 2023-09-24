@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 async function signUpUser(credentials) {
@@ -22,6 +22,7 @@ export default function SignUp({ setToken }) {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [confirmPassword, setConfirmPassword] = useState();
+    const navigate = useNavigate();
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -31,6 +32,8 @@ export default function SignUp({ setToken }) {
             password
         });
         setToken(token);
+        navigate('/');
+
     }
 
     const validatePassword = (password, confirmPassword) => {
