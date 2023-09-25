@@ -213,7 +213,7 @@ app.put('/api/users', async (req, res) => {
     if (result.nModified === 0) {
       return res.status(404).json({ error: "No user was updated" });
     }
-    return res.status(200).send(result);
+    return res.status(200).send({ message: "Successfully updated user in the database" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -314,7 +314,7 @@ app.put('/api/softwares', async (req, res) => {
     if(result.nModified === 0) {
         return res.status(404).json({ error: "No software entries were updated in the database" });
     }
-    return res.status(200).send(result);
+    return res.status(200).send({ message: "Successfully updated software in the database" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal Server Error'});

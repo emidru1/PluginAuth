@@ -6,7 +6,7 @@ import RemoveLicense from './RemoveLicense';
 export default function License() {
     const { _id } = useParams();
     const [ license, setLicense ] = useState(null);
-    const { id, softwareId, userId, expirationDate, key, createdAt } = license || {};
+    const { softwareId, userId, expirationDate, key, createdAt } = license || {};
     const navigate = useNavigate();
 
     useEffect(() => {

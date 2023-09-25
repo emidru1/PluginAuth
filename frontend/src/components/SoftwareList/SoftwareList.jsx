@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link }  from 'react-router-dom';
+import { Link, useNavigate }  from 'react-router-dom';
 import './SoftwareList.css';
 
 export default function SoftwareList() {
     const [softwares, setSoftware] = useState([]);
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchSoftware = async () => {
             try {
@@ -22,6 +24,10 @@ export default function SoftwareList() {
         }
         fetchSoftware();
     },[]);
+
+    const handleAdd = () => {
+        navigate('/softwares/addsoftware');
+    }
     return (
         <div className="software-list">
             <h1>Software list</h1>
@@ -34,6 +40,7 @@ export default function SoftwareList() {
                     ))
                 }
             </ul>
+            <button onClick={handleAdd}>Add Software</button>
         </div>
     );
 }

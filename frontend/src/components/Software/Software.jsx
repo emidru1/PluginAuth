@@ -34,6 +34,9 @@ export default function Software() {
         navigate(-1);
         
     };
+    const handleEditClick = () => {
+        navigate(`/softwares/edit/${software._id}`, { state: { software }});
+    }
     return (
         <div className="software-details">
             <h1>Software Details</h1>
@@ -48,6 +51,7 @@ export default function Software() {
                 </ul>
             )}
             <button onClick={handleClick}>Back</button>
+            <button onClick={() => handleEditClick(software)}>Edit</button>
         </div>
     );
 }
