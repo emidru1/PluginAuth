@@ -12,11 +12,7 @@ const bcrypt = require('bcrypt');
 const { ObjectId } = require('mongoose').Types;
 const app = express();
 
-// TODO:
-// Key requirements
-// User model (username, start date, expiry date later)
-// Validation depending on model using express-validator npm
-// Build runelite/devious, make a key input form + button, send response of validation to in game chat
+
 
 app.use(helmet());
 app.use(bodyParser.json());
@@ -29,7 +25,7 @@ mongoose.connect(process.env.URI, {
 });
 
 //Licenses CRUD
-//Get all licenses
+//Get all licenses (For admin)
 app.get('/api/licenses', async (req, res) => {
   try {
     const result = await License.find({}).exec();
@@ -43,21 +39,26 @@ app.get('/api/licenses', async (req, res) => {
   }
 });
 
-app.get('/api/licenses/:id', async (req, res) => {
-  if (!ObjectId.isValid(req.params.id)) {
-    return res.status(404).json({ message: "Invalid license id provided" });
+//Get details of a specified license
+app.get('/api/software/:softwareId/users/:userId/licenses/:licenseId', async (req, res) => {
+  if (!ObjectId.isValid(req.params.softwareId) || !ObjectId.isValid(req.params.userId) || !ObjectId.isValid(req.params.licenseId)) {
+      return res.status(404).json({ error: "Invalid softwareId, userId, or licenseId provided" });
   }
+
   try {
-    const result = await License.findById({_id: req.params.id});
-    if (result.length === 0) {
-      return res.status(404).json({ message: "No licenses found in the database" });
-    }
-    return res.status(200).send(result);
+      const license = await License.findOne({ _id: req.params.licenseId, softwareId: req.params.softwareId, userId: req.params.userId });
+
+      if (!license) {
+          return res.status(404).json({ error: "License not found for the provided softwareId, userId, and licenseId" });
+      }
+
+      res.status(200).json(license);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal Server Error'});
+      console.error(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Add license to the database
 app.post('/api/licenses', async (req, res) => {
@@ -152,6 +153,28 @@ app.get('/api/users', async (req, res) => {
       return res.status(500).json({ error: 'Internal Server Error'});
     }
 });
+//Get all users using specific software
+app.get('/api/software/:softwareId/users', async (req, res) => {
+  if (!ObjectId.isValid(req.params.softwareId)) {
+      return res.status(404).json({ error: "Invalid softwareId provided" });
+  }
+
+  try {
+      const licenses = await License.find({ softwareId: req.params.softwareId });
+      const userIds = licenses.map(license => license.userId);
+      const users = await User.find({ _id: { $in: userIds }});
+
+      if (users.length === 0) {
+          return res.status(404).json({ error: "No users found for the provided softwareId" });
+      }
+
+      res.status(200).json(users);
+  } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 //Get user data that corresponds to id (for example: 507f1f77bcf86cd799439011)
 app.get('/api/users/:id', async (req, res) => {
@@ -339,7 +362,7 @@ app.delete('/api/softwares', async (req, res) => {
 });
 
 //Get all licenses of a specified software:
-app.get('/api/licenses/:softwareId/licenses', async (req, res) => {
+app.get('/api/software/:softwareId/licenses', async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId)) {
     return res.status(404).json({ error: "Invalid softwareId provided" });
   }
@@ -354,26 +377,28 @@ app.get('/api/licenses/:softwareId/licenses', async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
-//Get all users using X software
-app.get('/api/licenses/:softwareId/users', async (req, res) => {
-  if (!ObjectId.isValid(req.params.softwareId)) {
-    return res.status(404).json({ error: "Invalid softwareId provided" });
-  }
-  try {
-      const result = await License.find({ softwareId: req.params.softwareId});
-  if (result.length === 0) {
-    return res.status(404).json({ error: "No users were found with corresponding softwareId" })
-  }
-  //After filtering licenses, filter our only userId's
-  const users = result.map(doc => doc.userId);
-  return res.status(200).send(users);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Internal Server Error'});
-  }
+
+//Get specified software specified user's all licenses within the software
+app.get('/api/software/:softwareId/users/:userId/licenses', async (req, res) => {
+    if (!ObjectId.isValid(req.params.softwareId) || !ObjectId.isValid(req.params.userId)) {
+        return res.status(404).json({ error: "Invalid softwareId or userId provided" });
+    }
+
+    try {
+        const licenses = await License.find({ softwareId: req.params.softwareId, userId: req.params.userId });
+
+        if (licenses.length === 0) {
+            return res.status(404).json({ error: "No licenses found for the provided softwareId and userId" });
+        }
+
+        res.status(200).json(licenses);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
+
 //Get all selected users licenses
-// Bugged. Returns only 1 id. Check input data for debugging.
 app.get('/api/users/:userId/licenses', async (req, res) => {
   if(!ObjectId.isValid(req.params.userId)) {
     return res.status(404).json({ error: "Invalid userId provided" });
@@ -390,12 +415,26 @@ app.get('/api/users/:userId/licenses', async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error'});
   }
 });
+
+
+
+
 /* 
 TODO:
-Add username to user (?)
-Add names to licenses (?)
-Implement JWT
-Start frontend
+API endpoints should be:
+/api/entityA/IdA/entityB/IdB/entityC/IdC
+
+Object hierarchy:
+Software <- user <- license
+
+software should have nested users array
+users should have nested license array in the database
+
+That way endpoint could be: /api/software/softwareId/user/userId/license/licenseId
+Add username to user
+
+Generate license name, for example license-1283091 (unix timestamp?)
+
 */
 app.use('/login', (req, res) => {
   res.send({

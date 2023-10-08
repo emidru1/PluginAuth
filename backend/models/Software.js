@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const SoftwareSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
+const softwareSchema = new Schema({
+    name: String,
     version: String,
     description: String,
     price: Number,
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-}, { database: process.env.DB_NAME });
+    createdAt: Date,
+    users: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }]
+});
 
-module.exports = mongoose.model('Software', SoftwareSchema);
+const Software = mongoose.model('Software', softwareSchema);
+module.exports = Software;

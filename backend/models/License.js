@@ -1,30 +1,15 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const LicenseSchema = new mongoose.Schema({
+const licenseSchema = new Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
-    softwareId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Software',
-        required: true
-    },
-    expirationDate: {
-        type: Date,
-        required: true
-    },
-    key: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-}, { database: process.env.DB_NAME });
+    key: String,
+    expirationDate: Date,
+    createdAt: Date
+});
 
-
-module.exports = mongoose.model('License', LicenseSchema);
+const License = mongoose.model('License', licenseSchema);
+module.exports = License;
