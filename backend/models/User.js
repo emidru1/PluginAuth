@@ -5,10 +5,10 @@ const userSchema = new Schema({
     email: String,
     password: String,
     role: String,
-    software: {
+    softwares: [{
         type: Schema.Types.ObjectId,
         ref: 'Software'
-    },
+    }],
     licenses: [{
         type: Schema.Types.ObjectId,
         ref: 'License'

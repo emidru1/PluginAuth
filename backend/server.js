@@ -62,24 +62,52 @@ app.get('/api/software/:softwareId/users/:userId/licenses/:licenseId', async (re
 
 // Add license to the database
 app.post('/api/licenses', async (req, res) => {
-  const userId = new mongoose.Types.ObjectId(req.body.userId);
-  const softwareId = new mongoose.Types.ObjectId(req.body.softwareId);
+
+  const { userId, softwareId, expirationDate, key, createdAt } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(softwareId)) {
+    return res.status(400).send('Invalid userId or softwareId provided.');
+  }
+
   try {
+    const userExists = await User.findById(userId);
+    const softwareExists = await Software.findById(softwareId);
+
+    if (!userExists) {
+      return res.status(404).send('User not found.');
+    }
+
+    if (!softwareExists) {
+      return res.status(404).send('Software not found.');
+    }
     const license = new License({
-      userId: userId,
-      softwareId: softwareId,
-      expirationDate: req.body.expirationDate,
-      key: req.body.key,
-      createdAt: req.body.createdAt
+      userId,
+      softwareId,
+      expirationDate,
+      key,
+      createdAt
     });
-    await license.save();
     
-    res.status(200).json({ message: "License has been successfully inserted to the database" });
+    const savedLicense = await license.save();
+
+    await User.updateOne(
+      { _id: userId },
+      { $addToSet: { softwares: softwareId } }
+    );
+
+    await User.updateOne(
+      { _id: userId },
+      { $addToSet: { licenses: savedLicense._id } }
+    );
+    return res.status(200).send('License has been successfully inserted to the database.');
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Internal Server Error'});
+    return res.status(500).send('Internal Server Error');
   }
 });
+
+
+
 
 
 // Delete license from the database
@@ -95,6 +123,13 @@ app.delete('/api/licenses', async (req, res) => {
           return res.status(404).json({ error: "License not found" });
       }
 
+      const remainingLicenses = await License.find({ softwareId: req.body.softwareId, userId: req.body.userId });
+      if(remainingLicenses.length === 0) {
+        await User.updateOne(
+          { _id: req.body.userId },
+          { $pull: { softwares: req.body.softwareId } }
+      );
+    }
       res.status(200).json({ message: "License successfully deleted from the database" });
   } catch (err) {
       console.error(err);
@@ -155,19 +190,11 @@ app.get('/api/users', async (req, res) => {
 });
 //Get all users using specific software
 app.get('/api/software/:softwareId/users', async (req, res) => {
-  if (!ObjectId.isValid(req.params.softwareId)) {
-      return res.status(404).json({ error: "Invalid softwareId provided" });
-  }
-
   try {
-      const licenses = await License.find({ softwareId: req.params.softwareId });
-      const userIds = licenses.map(license => license.userId);
-      const users = await User.find({ _id: { $in: userIds }});
-
+      const users = await User.find({ softwares: req.params.softwareId });
       if (users.length === 0) {
           return res.status(404).json({ error: "No users found for the provided softwareId" });
       }
-
       res.status(200).json(users);
   } catch (err) {
       console.error(err);
@@ -354,7 +381,7 @@ app.delete('/api/softwares', async (req, res) => {
     if(result.deletedCount === 0) {
       return res.status(404).json({ error: "No software entries were deleted in the database" });
     }
-    return res.status(200).send(result);
+    return res.status(200).send({ message: "Successfully removed software from the database" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal Server Error'});

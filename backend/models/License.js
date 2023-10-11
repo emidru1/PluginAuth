@@ -6,6 +6,10 @@ const licenseSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    softwareId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Software'
+    },
     key: String,
     expirationDate: Date,
     createdAt: Date

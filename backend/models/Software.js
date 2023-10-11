@@ -6,11 +6,7 @@ const softwareSchema = new Schema({
     version: String,
     description: String,
     price: Number,
-    createdAt: Date,
-    users: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }]
+    createdAt: Date
 });
 
 const Software = mongoose.model('Software', softwareSchema);
