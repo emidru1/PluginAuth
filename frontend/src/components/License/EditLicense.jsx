@@ -75,7 +75,7 @@ export default function EditLicense () {
                     expirationDate: expiration
                 };
                 try {
-                    const response = await fetch('http://localhost:3001/api/licenses', {
+                    const response = await fetch(`http://localhost:3001/api/licenses`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'

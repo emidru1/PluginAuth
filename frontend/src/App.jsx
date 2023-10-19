@@ -44,9 +44,9 @@ function App() {
             <Route path="/softwares/addsoftware" element={<AddSoftware />}/>
             <Route path="/softwares/edit/:_id" element={<EditSoftware />}/>
             <Route path="/licenses/" element={<LicenseList />} />
-            <Route path="/licenses/:_id" element={<License />} />
-            <Route path="/licenses/addlicense" element={<AddLicense />} />
-            <Route path="/licenses/edit/:_id" element={<EditLicense/>} />
+            <Route path="/softwares/:softwareId/users/:userId/licenses/:_id" element={<License />} />
+            <Route path="/softwares/:softwareId/addLicense" element={<AddLicense />} />
+            <Route path="/softwares/:softwareId/users/:userId/licenses/:licenseId/edit" element={<EditLicense/>} />
             <Route path="/users" element={<UserList />} />
             <Route path="/users/:_id" element={<User />} />
           </Routes>

@@ -29,16 +29,17 @@ export default function LicenseList() {
     return(
         <div className="license-list">
             <h1>License list</h1>
-            <button onClick={handleAddLicense}>Add License</button>
+
             <ul>
                 { 
                     licenses.map((license) => (
                         <li key={license._id}>
-                            <Link to={`/licenses/${license._id}`}>{license.key}</Link>
+                            <Link to={`/softwares/${license.softwareId}/users/${license.userId}/licenses/${license._id}`}>{license.key}</Link>
                         </li>
                     ))
                 }
             </ul>
+            <button onClick={handleAddLicense}>Add License</button>
         </div>
     );
 }

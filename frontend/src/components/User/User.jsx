@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import './User.css';
 
 export default function User() {
     const { _id } = useParams();
-    const [ user, setUser ] = useState(null);
-    const { email, role, createdAt } = user || {};
+    const [user, setUser] = useState({ email: '', role: '', licenses: [], softwares: [] });
+    const { email, role, softwares, licenses } = user || {};
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,6 +23,7 @@ export default function User() {
             })
             if (!userData.ok) throw new Error("Could not fetch user data");
             const data = await userData.json();
+            console.log(data);
             setUser(data);
             } catch(err) {
                 console.log(err);
@@ -41,10 +42,35 @@ export default function User() {
                     <li>
                         <p>{email}</p>
                         <p>{role}</p>
-                        <p>{createdAt}</p>
                     </li>
-                </ul>
+                </ul> 
             )}
+            <h1>User License list</h1>
+            { licenses && 
+                <ul>
+                    { 
+                        licenses.map((license) => (
+                            <li key={license._id}>
+                                <Link to={`/softwares/${license.softwareId}/users/${license.userId}/licenses/${license._id}`}>{license.key}</Link>
+                            </li>
+                        ))
+                    }
+                </ul>
+            }
+            <h1>Software list</h1>
+            { softwares && 
+                <ul>
+                    {
+                        softwares.map((software) => (
+                            <li key={software._id}>
+                                <Link to={`/softwares/${software._id}`}>{software.name}</Link>
+                            </li>
+                        ))
+                    }
+                </ul>
+            }
+
+            
         <button onClick={handleClick}>Back</button>
         </div>
     );

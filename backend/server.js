@@ -25,7 +25,7 @@ mongoose.connect(process.env.URI, {
 });
 
 //Licenses CRUD
-//Get all licenses (For admin)
+//Get all licenses 
 app.get('/api/licenses', async (req, res) => {
   try {
     const result = await License.find({}).exec();
@@ -40,9 +40,9 @@ app.get('/api/licenses', async (req, res) => {
 });
 
 //Get details of a specified license
-app.get('/api/software/:softwareId/users/:userId/licenses/:licenseId', async (req, res) => {
+app.get('/api/softwares/:softwareId/users/:userId/licenses/:licenseId', async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId) || !ObjectId.isValid(req.params.userId) || !ObjectId.isValid(req.params.licenseId)) {
-      return res.status(404).json({ error: "Invalid softwareId, userId, or licenseId provided" });
+      return res.status(400).json({ error: "Invalid softwareId, userId, or licenseId provided" });
   }
 
   try {
@@ -62,7 +62,6 @@ app.get('/api/software/:softwareId/users/:userId/licenses/:licenseId', async (re
 
 // Add license to the database
 app.post('/api/licenses', async (req, res) => {
-
   const { userId, softwareId, expirationDate, key, createdAt } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(softwareId)) {
@@ -87,9 +86,9 @@ app.post('/api/licenses', async (req, res) => {
       key,
       createdAt
     });
-    
-    const savedLicense = await license.save();
 
+    const savedLicense = await license.save();
+    
     await User.updateOne(
       { _id: userId },
       { $addToSet: { softwares: softwareId } }
@@ -99,7 +98,7 @@ app.post('/api/licenses', async (req, res) => {
       { _id: userId },
       { $addToSet: { licenses: savedLicense._id } }
     );
-    return res.status(200).send('License has been successfully inserted to the database.');
+    return res.status(200).json({ message: "License has been successfully inserted to the database."});
   } catch (err) {
     console.error(err);
     return res.status(500).send('Internal Server Error');
@@ -112,6 +111,9 @@ app.post('/api/licenses', async (req, res) => {
 
 // Delete license from the database
 app.delete('/api/licenses', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(licenseId)) {
+    return res.status(400).send('Invalid licenseId provided.');
+  }
   try {
       const licenseId = req.body._id;
       if (!licenseId) {
@@ -130,7 +132,7 @@ app.delete('/api/licenses', async (req, res) => {
           { $pull: { softwares: req.body.softwareId } }
       );
     }
-      res.status(200).json({ message: "License successfully deleted from the database" });
+      res.status(200).json({ message: "License has been successfully deleted from the database" });
   } catch (err) {
       console.error(err);
       return res.status(500).json({ error: 'Internal Server Error'});
@@ -139,12 +141,17 @@ app.delete('/api/licenses', async (req, res) => {
 
 // Update license entry in the database
 // Frontend works fine, update all fields that are present (just like in POST request)
+// error catching
 app.put('/api/licenses', async (req, res) => {
+  if (!ObjectId.isValid(licenseId)) {
+    return res.status(400).send('Invalid licenseId provided.');
+  }
   try {
     const licenseId = req.body._id;
     if (!licenseId) {
       return res.status(400).json({ error: "Must provide license Id" });
     }
+   
 
     let updates = {};
 
@@ -162,11 +169,12 @@ app.put('/api/licenses', async (req, res) => {
     }
     
     const result = await License.updateOne({ _id: req.body._id }, {$set: updates});
-    
+    // Needs debugging. Upon providing invalid license request still goes through, and status is 200, although nothing is updated in the database
+
     if (result.nModified === 0) {
       return res.status(404).json({ error: "No license found to update" });
     }
-    res.status(200).json({ message: "Successfully updated license in the database" });
+    res.status(200).json({ message: "License has been successfully updated in the database" });
 
   } catch (err) {
     console.error(err);
@@ -189,7 +197,7 @@ app.get('/api/users', async (req, res) => {
     }
 });
 //Get all users using specific software
-app.get('/api/software/:softwareId/users', async (req, res) => {
+app.get('/api/softwares/:softwareId/users', async (req, res) => {
   try {
       const users = await User.find({ softwares: req.params.softwareId });
       if (users.length === 0) {
@@ -206,18 +214,21 @@ app.get('/api/software/:softwareId/users', async (req, res) => {
 //Get user data that corresponds to id (for example: 507f1f77bcf86cd799439011)
 app.get('/api/users/:id', async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
-    return res.status(404).json({ error: "Invalid userId provided" });
+    return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
-    const result = await User.findById({_id: req.params.id}).exec();
-    if (result.length === 0) {
-      return res.status(404).json({ error: "No user found in the database with provided userid" });
+    const user = await User.findById(req.params.id)
+                            .populate('softwares')
+                            .populate('licenses')
+                            .exec();
+    if (!user) {
+      return res.status(404).json({ error: "No user found in the database with provided userId" });
     }
-    return res.status(200).send(result);
+
+    return res.status(200).json(user);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal Server Error'});
-
   }
 });
 
@@ -234,7 +245,7 @@ app.post('/api/users', async (req, res) => {
     if(result.length === 0) {
       return res.status(404).json({ error: "User has not been created successfully" });
     }
-    return res.status(200).send(result);
+    return res.status(200).json({message: "User has been successfully added to the database"});
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -244,7 +255,7 @@ app.post('/api/users', async (req, res) => {
 //Update user information
 app.put('/api/users', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).json({ error: "Invalid userId provided" });
+    return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
     const userId = req.body._id;
@@ -263,7 +274,7 @@ app.put('/api/users', async (req, res) => {
     if (result.nModified === 0) {
       return res.status(404).json({ error: "No user was updated" });
     }
-    return res.status(200).send({ message: "Successfully updated user in the database" });
+    return res.status(200).send({ message: "User has been successfully updated in the database" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -272,7 +283,7 @@ app.put('/api/users', async (req, res) => {
 
 app.delete('/api/users', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).json({ error: "Invalid userId provided" });
+    return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
     const userId = req.body._id;
@@ -305,7 +316,7 @@ app.get('/api/softwares', async (req, res) => {
 // Get software data that corresponds to provided id
 app.get('/api/softwares/:id', async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
-    return res.status(404).json({ error: "Invalid softwareId provided" });
+    return res.status(400).json({ error: "Invalid softwareId provided" });
   }
   try {
     const software = await Software.findById(req.params.id);
@@ -334,7 +345,7 @@ app.post('/api/softwares', async (req, res) => {
     if(!result) {
       return res.status(404).json({ error: "Software was not added to the database" });
     }
-    return res.status(200).json({ message: "Software successfully added to the database" });
+    return res.status(200).json({ message: "Software has been successfully added to the database" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -343,7 +354,7 @@ app.post('/api/softwares', async (req, res) => {
 // Update software in the database
 app.put('/api/softwares', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).json({ error: "Invalid softwareId provided" });
+    return res.status(400).json({ error: "Invalid softwareId provided" });
   }
   try {
     let updates = {};
@@ -364,7 +375,7 @@ app.put('/api/softwares', async (req, res) => {
     if(result.nModified === 0) {
         return res.status(404).json({ error: "No software entries were updated in the database" });
     }
-    return res.status(200).send({ message: "Successfully updated software in the database" });
+    return res.status(200).send({ message: "Software has been successfully updated in the database" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -374,14 +385,14 @@ app.put('/api/softwares', async (req, res) => {
 // Remove software from the database
 app.delete('/api/softwares', async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
-    return res.status(404).json({ error: "Invalid softwareId provided" });
+    return res.status(400).json({ error: "Invalid softwareId provided" });
   }
   try {
     const result = await Software.deleteOne({ _id: req.body._id });
     if(result.deletedCount === 0) {
       return res.status(404).json({ error: "No software entries were deleted in the database" });
     }
-    return res.status(200).send({ message: "Successfully removed software from the database" });
+    return res.status(200).send({ message: "Software has been successfully removed from the database" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -391,7 +402,7 @@ app.delete('/api/softwares', async (req, res) => {
 //Get all licenses of a specified software:
 app.get('/api/software/:softwareId/licenses', async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId)) {
-    return res.status(404).json({ error: "Invalid softwareId provided" });
+    return res.status(400).json({ error: "Invalid softwareId provided" });
   }
   try {
     const result = await License.find({ softwareId: req.params.softwareId});
@@ -408,7 +419,7 @@ app.get('/api/software/:softwareId/licenses', async (req, res) => {
 //Get specified software specified user's all licenses within the software
 app.get('/api/software/:softwareId/users/:userId/licenses', async (req, res) => {
     if (!ObjectId.isValid(req.params.softwareId) || !ObjectId.isValid(req.params.userId)) {
-        return res.status(404).json({ error: "Invalid softwareId or userId provided" });
+        return res.status(400).json({ error: "Invalid softwareId or userId provided" });
     }
 
     try {
@@ -428,7 +439,7 @@ app.get('/api/software/:softwareId/users/:userId/licenses', async (req, res) => 
 //Get all selected users licenses
 app.get('/api/users/:userId/licenses', async (req, res) => {
   if(!ObjectId.isValid(req.params.userId)) {
-    return res.status(404).json({ error: "Invalid userId provided" });
+    return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
     const result = await License.find({ userId: req.params.userId });
@@ -447,20 +458,24 @@ app.get('/api/users/:userId/licenses', async (req, res) => {
 
 
 /* 
-TODO:
-API endpoints should be:
-/api/entityA/IdA/entityB/IdB/entityC/IdC
-
 Object hierarchy:
 Software <- user <- license
 
-software should have nested users array
-users should have nested license array in the database
+API endpoints should be:
+/api/entityA/IdA/entityB/IdB/entityC/IdC - done
+software should have nested users array - done
+users should have nested license array in the database - done
+That way endpoint could be: /api/software/softwareId/user/userId/license/licenseId - done
 
-That way endpoint could be: /api/software/softwareId/user/userId/license/licenseId
+TODO:
 Add username to user
-
 Generate license name, for example license-1283091 (unix timestamp?)
+
+When user is removed by administrator, user licenses should be removed aswell (no point in keeping them)
+When software is removed, licenses of that software should be removed too (license and in user licenses array)
+When updating object entry in the database, validate ID, check if the object exists in the database
+
+Done: Added ObjectId validation in Licenses PUT API method
 
 */
 app.use('/login', (req, res) => {

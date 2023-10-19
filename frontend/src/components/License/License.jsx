@@ -4,9 +4,9 @@ import './License.css';
 import RemoveLicense from './RemoveLicense';
 
 export default function License() {
-    const { _id } = useParams();
+    const { _id, softwareId, userId } = useParams();
     const [ license, setLicense ] = useState(null);
-    const { softwareId, userId, expirationDate, key, createdAt } = license || {};
+    const { sId, uId, expirationDate, key, createdAt } = license || {};
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export default function License() {
             return;
         }
         try {
-            const licenseData = await fetch(`http://localhost:3001/api/licenses/${_id}`, {
+            const licenseData = await fetch(`http://localhost:3001/api/softwares/${softwareId}/users/${userId}/licenses/${_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ export default function License() {
         navigate(-1);
     };
     const handleEditClick = () => {
-        navigate(`/licenses/edit/${license._id}`, { state: { license }});
+        navigate(`/softwares/${license.softwareId}/users/${license.userId}/licenses/${license._id}/edit`, { state: { license }});
     }
     return(
         <div className="license-details">
@@ -44,8 +44,8 @@ export default function License() {
                 <ul>
                     <li>
                         <p>License ID: {_id}</p>
-                        <p>Software ID: {softwareId}</p>
-                        <p>User ID: {userId}</p>
+                        <p>Software ID: {sId}</p>
+                        <p>User ID: {uId}</p>
                         <p>Expiration date: {expirationDate}</p>
                         <p>Key: {key}</p>
                         <p>Created at: {createdAt}</p>
