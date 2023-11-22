@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon -r dotenv/config index.js",
-    "heroku-postbuild": "npm install && npm run dev"
+    "dev": "nodemon -r dotenv/config index.js"
   },
   "keywords": [],
   "author": "",

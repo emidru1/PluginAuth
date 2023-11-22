@@ -26,15 +26,7 @@ mongoose.connect(process.env.URI, {
 
 //Licenses CRUD
 //Get all licenses 
-express()
-  .use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
-  .get('/times', (req, res) => res.send(showTimes()))
-  .get('/cool', (req, res) => res.send(cool()))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
-  
+
 function generateToken(user) {
   const payload = {
     userId: user._id,
