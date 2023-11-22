@@ -1,12 +1,26 @@
 {
   "dependencies": {
-    "jwt-decode": "^4.0.0"
-  },
+    "jwt-decode": "^4.0.0",
+      "bcrypt": "^5.1.1",
+      "body-parser": "^1.20.2",
+      "cors": "^2.8.5",
+      "express": "^4.18.2",
+      "helmet": "^5.1.1",
+      "joi": "^17.6.0",
+      "jsonwebtoken": "^9.0.2",
+      "mongodb": "^4.17.1",
+      "mongoose": "^6.12.0",
+      "morgan": "^1.10.0"
+    },
+    "devDependencies": {
+      "dotenv": "^10.0.0",
+      "nodemon": "^3.0.1"
+    },
+  
   "name": "pluginauth",
   "description": "pluginauth",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cd backend && npm install && node server.js"
