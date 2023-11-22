@@ -3,12 +3,13 @@
     "jwt-decode": "^4.0.0"
   },
   "name": "pluginauth",
-  "description": "1. SPRENDŽIAMO UŽDAVINIO APRAŠYMAS\r Programinės įrangos licencijavimo sistemos pagalba siekiama kontroliuoti programinės\r įrangos naudojimą, suteikiant kiekvienam naudotojui prieigos raktą – licenciją. Ši sistema leidžia\r ne tik administruoti licencijas, bet ir suteikia galimybę naudotojui peržiūrėti turimas – įsigytas\r programinės įrangos licencijas, jas tvarkyti. Šios sistemos pagalba norima užtikrinti, jog\r programinė įranga būtų teisingai licencijuota, bei suteikti įrangos kurėjui galimybę stebėti\r programinės įrangos naudojimą, bei apriboti nepageidaujamą naudojimą. Sistemos hierarchija:\r Programinė įranga <- naudotojas <- prieigos raktai(licencijos",
+  "description": "pluginauth",
   "version": "1.0.0",
   "main": "index.js",
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cd backend && node server.js"
   },
   "keywords": [],
   "author": "",
