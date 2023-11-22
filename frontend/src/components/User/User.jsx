@@ -15,7 +15,7 @@ export default function User() {
                 return;
             }
             try {
-                const userData = await fetch(`http://localhost:3001/api/users/${_id}`, {
+                const userData = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/users/${_id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

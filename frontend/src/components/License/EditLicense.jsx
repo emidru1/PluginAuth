@@ -19,7 +19,7 @@ export default function EditLicense () {
             //Should move these methods for fetching to a different component made for that purpose (method reusing)
             const loadUsers = async () => {
                 try {
-                    const fetchUsers = await fetch('http://localhost:3001/api/users', {
+                    const fetchUsers = await fetch('https://your-heroku-app-name.herokuapp.com/api/users', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export default function EditLicense () {
             }
             const loadSoftwares = async () => {
                 try {
-                    const fetchSoftwares = await fetch('http://localhost:3001/api/softwares', {
+                    const fetchSoftwares = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function EditLicense () {
                     expirationDate: expiration
                 };
                 try {
-                    const response = await fetch(`http://localhost:3001/api/licenses`, {
+                    const response = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/licenses`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',

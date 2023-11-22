@@ -30,7 +30,7 @@ export default function LicenseListById() {
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3001/api/users/${userId}/licenses`, {
+                const response = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/users/${userId}/licenses`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

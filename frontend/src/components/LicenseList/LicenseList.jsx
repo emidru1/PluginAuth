@@ -8,7 +8,7 @@ export default function LicenseList() {
     useEffect(() => {
         const fetchLicenses = async () => {
             try {
-                const getSoftwareList = await fetch('http://localhost:3001/api/licenses', {
+                const getSoftwareList = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/licenses', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

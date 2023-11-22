@@ -23,7 +23,7 @@ export default function EditSoftware() {
             price: softwarePrice
         }
         try {
-            const response = await fetch('http://localhost:3001/api/softwares', {
+            const response = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

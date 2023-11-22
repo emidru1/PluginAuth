@@ -9,7 +9,7 @@ export default function SoftwareList() {
     useEffect(() => {
         const fetchSoftware = async () => {
             try {
-                const getSoftwares = await fetch('http://localhost:3001/api/softwares', {
+                const getSoftwares = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
                     method: 'GET',
                     headers: {
                         "Content-Type": "application/json",

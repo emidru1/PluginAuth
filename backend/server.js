@@ -570,11 +570,9 @@ app.post('/signup', async (req, res) => {
 // Start server
 
 if (process.env.NODE_ENV === "production") {
-  // Update this line to point to 'frontend/dist'
   app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
   app.get('*', (req, res) => {
-    // Update this line too
     res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
   });
 }

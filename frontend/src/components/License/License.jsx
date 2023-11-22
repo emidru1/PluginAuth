@@ -17,7 +17,7 @@ export default function License() {
             return;
         }
         try {
-            const licenseData = await fetch(`http://localhost:3001/api/softwares/${softwareId}/users/${userId}/licenses/${_id}`, {
+            const licenseData = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares/${softwareId}/users/${userId}/licenses/${_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

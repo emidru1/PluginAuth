@@ -15,7 +15,7 @@ export default function RemoveLicense() {
             }
             console.log(toRemove);
             try {
-                const response = await fetch('http://localhost:3001/api/licenses', {
+                const response = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/licenses', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

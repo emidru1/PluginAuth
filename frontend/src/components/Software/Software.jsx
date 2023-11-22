@@ -15,7 +15,7 @@ export default function Software() {
                 return;
             }
             try {
-                const softwareData = await fetch(`http://localhost:3001/api/softwares/${_id}`, {
+                const softwareData = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares/${_id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

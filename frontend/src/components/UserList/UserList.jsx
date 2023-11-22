@@ -8,7 +8,7 @@ export default function UserList() {
     useEffect(() => {
         const fetchUserList = async () => {
             try {
-                const userList = await fetch('http://localhost:3001/api/users', {
+                const userList = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/users', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

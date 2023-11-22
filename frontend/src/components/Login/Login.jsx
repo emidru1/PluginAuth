@@ -5,7 +5,7 @@ import "./Login.css";
 import { Link, useNavigate } from 'react-router-dom';
 
 async function loginUser(credentials) {
-    return fetch('http://localhost:3001/login', {
+    return fetch('https://pluginauth-d6d40867cfab.herokuapp.com/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

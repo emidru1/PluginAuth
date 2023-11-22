@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 async function signUpUser(credentials) {
-    return fetch('http://localhost:3001/signup', {
+    return fetch('https://pluginauth-d6d40867cfab.herokuapp.com/signup', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json' 
