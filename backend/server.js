@@ -570,11 +570,15 @@ app.post('/signup', async (req, res) => {
 // Start server
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("build"));  // Use 'build' if that's where your frontend files are
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "build", "index.html"));
+  // Update this line to point to 'frontend/dist'
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+  app.get('*', (req, res) => {
+    // Update this line too
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
   });
 }
+
 
 
 app.listen(process.env.PORT || 3000, function(){
