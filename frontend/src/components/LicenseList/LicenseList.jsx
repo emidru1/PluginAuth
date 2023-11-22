@@ -11,7 +11,8 @@ export default function LicenseList() {
                 const getSoftwareList = await fetch('http://localhost:3001/api/licenses', {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 if (!getSoftwareList.ok) throw new Error("Could not retrieve software list");
@@ -24,7 +25,7 @@ export default function LicenseList() {
         fetchLicenses();
     },[]);
     const handleAddLicense = () => {
-        navigate('/licenses/addlicense');
+        navigate('/softwares/:softwareId/addLicense');
     }
     return(
         <div className="license-list">

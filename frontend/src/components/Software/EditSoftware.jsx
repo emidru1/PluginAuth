@@ -26,7 +26,8 @@ export default function EditSoftware() {
             const response = await fetch('http://localhost:3001/api/softwares', {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(dataToUpdate)
             })

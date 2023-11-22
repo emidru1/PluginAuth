@@ -2,7 +2,8 @@
 import React, {useState} from "react";
 import PropTypes from "prop-types";
 import "./Login.css";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 async function loginUser(credentials) {
     return fetch('http://localhost:3001/login', {
         method: 'POST',
@@ -21,15 +22,22 @@ Login.propTypes = {
 export default function Login({setToken}) {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+    const navigate = useNavigate();
 
     const handleSubmit = async e => {
         e.preventDefault();
-        const token = await loginUser({
+        const response = await loginUser({
             email,
             password
         });
-        setToken(token);
-    }
+    
+        if (response.token) {
+            setToken(response); // Pass the entire response object
+            navigate('/');
+        } else {
+            console.error("Login failed: No token received");
+        }
+    };
     return (
         <div className="login-form">
             <h1>PluginAuth</h1>

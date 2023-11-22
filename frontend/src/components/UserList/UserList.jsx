@@ -11,7 +11,8 @@ export default function UserList() {
                 const userList = await fetch('http://localhost:3001/api/users', {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
             if(!userList.ok) throw new Error("Could not fetch user list");

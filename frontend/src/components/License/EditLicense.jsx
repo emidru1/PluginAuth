@@ -22,7 +22,8 @@ export default function EditLicense () {
                     const fetchUsers = await fetch('http://localhost:3001/api/users', {
                         method: 'GET',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
                         }
                     });
                     if (!fetchUsers.ok) throw new Error("Could not fetch users");
@@ -37,7 +38,8 @@ export default function EditLicense () {
                     const fetchSoftwares = await fetch('http://localhost:3001/api/softwares', {
                         method: 'GET',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
                         }
                     });
                     if(!fetchSoftwares) throw new Error("Could not fetch softwares");
@@ -78,7 +80,8 @@ export default function EditLicense () {
                     const response = await fetch(`http://localhost:3001/api/licenses`, {
                         method: 'PUT',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
                         },
                         body: JSON.stringify(dataToSend)
                     });

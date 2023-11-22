@@ -11,7 +11,7 @@ const Software = require('./models/Software');
 const bcrypt = require('bcrypt');
 const { ObjectId } = require('mongoose').Types;
 const app = express();
-
+const jwt = require('jsonwebtoken');
 
 
 app.use(helmet());
@@ -26,7 +26,38 @@ mongoose.connect(process.env.URI, {
 
 //Licenses CRUD
 //Get all licenses 
-app.get('/api/licenses', async (req, res) => {
+
+function generateToken(user) {
+  const payload = {
+    userId: user._id,
+    role: user.role
+  };
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
+// Middleware for role checking
+function checkRole(allowedRoles) {
+  return function(req, res, next) {
+    if (req.user && allowedRoles.includes(req.user.role)) {
+      next();
+    } else {
+      res.status(403).json({ error: 'Access Denied: Insufficient permissions' });
+    }
+  };
+}
+
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1]; // "Bearer TOKEN"
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+app.get('/api/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
   try {
     const result = await License.find({}).exec();
     if (result.length === 0) {
@@ -40,7 +71,7 @@ app.get('/api/licenses', async (req, res) => {
 });
 
 //Get details of a specified license
-app.get('/api/softwares/:softwareId/users/:userId/licenses/:licenseId', async (req, res) => {
+app.get('/api/softwares/:softwareId/users/:userId/licenses/:licenseId', authenticateToken, checkRole(['admin', 'premium']), async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId) || !ObjectId.isValid(req.params.userId) || !ObjectId.isValid(req.params.licenseId)) {
       return res.status(400).json({ error: "Invalid softwareId, userId, or licenseId provided" });
   }
@@ -61,7 +92,7 @@ app.get('/api/softwares/:softwareId/users/:userId/licenses/:licenseId', async (r
 
 
 // Add license to the database
-app.post('/api/licenses', async (req, res) => {
+app.post('/api/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
   const { userId, softwareId, expirationDate, key, createdAt } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(softwareId)) {
@@ -110,7 +141,7 @@ app.post('/api/licenses', async (req, res) => {
 
 
 // Delete license from the database
-app.delete('/api/licenses', async (req, res) => {
+app.delete('/api/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(licenseId)) {
     return res.status(400).send('Invalid licenseId provided.');
   }
@@ -142,7 +173,7 @@ app.delete('/api/licenses', async (req, res) => {
 // Update license entry in the database
 // Frontend works fine, update all fields that are present (just like in POST request)
 // error catching
-app.put('/api/licenses', async (req, res) => {
+app.put('/api/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!ObjectId.isValid(licenseId)) {
     return res.status(400).send('Invalid licenseId provided.');
   }
@@ -184,7 +215,7 @@ app.put('/api/licenses', async (req, res) => {
 
 //Users CRUD
 //Get all users
-app.get('/api/users', async (req, res) => {
+app.get('/api/users', authenticateToken, checkRole(['admin']), async (req, res) => {
     try {
       const result = await User.find({}).exec();
       if (result.length === 0) {
@@ -197,7 +228,7 @@ app.get('/api/users', async (req, res) => {
     }
 });
 //Get all users using specific software
-app.get('/api/softwares/:softwareId/users', async (req, res) => {
+app.get('/api/softwares/:softwareId/users', authenticateToken, checkRole(['admin']), async (req, res) => {
   try {
       const users = await User.find({ softwares: req.params.softwareId });
       if (users.length === 0) {
@@ -212,7 +243,7 @@ app.get('/api/softwares/:softwareId/users', async (req, res) => {
 
 
 //Get user data that corresponds to id (for example: 507f1f77bcf86cd799439011)
-app.get('/api/users/:id', async (req, res) => {
+app.get('/api/users/:id', authenticateToken, checkRole(['admin', 'premium', 'standart']), async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid userId provided" });
   }
@@ -233,7 +264,7 @@ app.get('/api/users/:id', async (req, res) => {
 });
 
 // Add new user
-app.post('/api/users', async (req, res) => {
+app.post('/api/users', authenticateToken, checkRole(['admin']), async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
   try {
     const user = new User({
@@ -253,7 +284,7 @@ app.post('/api/users', async (req, res) => {
 });
 
 //Update user information
-app.put('/api/users', async (req, res) => {
+app.put('/api/users', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
     return res.status(400).json({ error: "Invalid userId provided" });
   }
@@ -281,7 +312,7 @@ app.put('/api/users', async (req, res) => {
   }
 });
 
-app.delete('/api/users', async (req, res) => {
+app.delete('/api/users', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
     return res.status(400).json({ error: "Invalid userId provided" });
   }
@@ -299,7 +330,7 @@ app.delete('/api/users', async (req, res) => {
 });
 
 // Get all softwares
-app.get('/api/softwares', async (req, res) => {
+app.get('/api/softwares', authenticateToken, checkRole(['admin', 'premium', 'standart']), async (req, res) => {
   try {
     const result = await Software.find({}).exec();
     if(result.length === 0 ) {
@@ -314,7 +345,7 @@ app.get('/api/softwares', async (req, res) => {
 });
 
 // Get software data that corresponds to provided id
-app.get('/api/softwares/:id', async (req, res) => {
+app.get('/api/softwares/:id', authenticateToken, checkRole(['admin', 'premium', 'standart']), async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid softwareId provided" });
   }
@@ -331,7 +362,7 @@ app.get('/api/softwares/:id', async (req, res) => {
   }
 });
 // Add software to the database
-app.post('/api/softwares', async (req, res) => {
+app.post('/api/softwares', authenticateToken, checkRole(['admin']), async (req, res) => {
   try {
     const software = new Software({
       name: req.body.name,
@@ -352,7 +383,7 @@ app.post('/api/softwares', async (req, res) => {
   }
 });
 // Update software in the database
-app.put('/api/softwares', async (req, res) => {
+app.put('/api/softwares', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
     return res.status(400).json({ error: "Invalid softwareId provided" });
   }
@@ -383,7 +414,7 @@ app.put('/api/softwares', async (req, res) => {
 });
 
 // Remove software from the database
-app.delete('/api/softwares', async (req, res) => {
+app.delete('/api/softwares', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!ObjectId.isValid(req.body._id)) {
     return res.status(400).json({ error: "Invalid softwareId provided" });
   }
@@ -400,7 +431,7 @@ app.delete('/api/softwares', async (req, res) => {
 });
 
 //Get all licenses of a specified software:
-app.get('/api/software/:softwareId/licenses', async (req, res) => {
+app.get('/api/software/:softwareId/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
   if (!ObjectId.isValid(req.params.softwareId)) {
     return res.status(400).json({ error: "Invalid softwareId provided" });
   }
@@ -417,7 +448,7 @@ app.get('/api/software/:softwareId/licenses', async (req, res) => {
 });
 
 //Get specified software specified user's all licenses within the software
-app.get('/api/software/:softwareId/users/:userId/licenses', async (req, res) => {
+app.get('/api/software/:softwareId/users/:userId/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
     if (!ObjectId.isValid(req.params.softwareId) || !ObjectId.isValid(req.params.userId)) {
         return res.status(400).json({ error: "Invalid softwareId or userId provided" });
     }
@@ -437,7 +468,7 @@ app.get('/api/software/:softwareId/users/:userId/licenses', async (req, res) => 
 });
 
 //Get all selected users licenses
-app.get('/api/users/:userId/licenses', async (req, res) => {
+app.get('/api/users/:userId/licenses', authenticateToken, checkRole(['admin', 'premium']), async (req, res) => {
   if(!ObjectId.isValid(req.params.userId)) {
     return res.status(400).json({ error: "Invalid userId provided" });
   }
@@ -446,8 +477,8 @@ app.get('/api/users/:userId/licenses', async (req, res) => {
     if (result.length === 0) {
       return res.status(404).json({ error: "No licenses found with provided userId" });
     }
-    const licenses = result.map(doc => doc._id);
-    return res.status(200).send(licenses);
+    
+    return res.status(200).send(result);
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal Server Error'});
@@ -478,16 +509,61 @@ When updating object entry in the database, validate ID, check if the object exi
 Done: Added ObjectId validation in Licenses PUT API method
 
 */
-app.use('/login', (req, res) => {
-  res.send({
-    token: 'test123'
-  });
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email }).exec();
+
+    if (user && await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      res.json({ token });
+    } else {
+      res.status(401).json({ error: 'Invalid username or password'});;
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error'});
+  }
 });
 
-app.use('/signup', (req, res) => {
-  res.send({
-    token: 'test123'
-  });
+app.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email }).exec();
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email address already exists'});;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role: "standart",
+      softwares: [],
+      licenses: []
+    });
+
+    const savedUser = await newUser.save();
+
+    const token = jwt.sign(
+      { userId: savedUser._id, role: savedUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(201).json({ token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error'});
+  }
 });
 
 // Start server

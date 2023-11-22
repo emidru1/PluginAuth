@@ -18,7 +18,8 @@ export default function User() {
                 const userData = await fetch(`http://localhost:3001/api/users/${_id}`, {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
             if (!userData.ok) throw new Error("Could not fetch user data");

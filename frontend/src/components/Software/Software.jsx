@@ -18,7 +18,8 @@ export default function Software() {
                 const softwareData = await fetch(`http://localhost:3001/api/softwares/${_id}`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 if(!softwareData.ok) throw new Error("Error fetching software data");

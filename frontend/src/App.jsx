@@ -18,6 +18,7 @@ import LicenseList from './components/LicenseList/LicenseList';
 import AddLicense from './components/LicenseList/AddLicense';
 import EditLicense from './components/License/EditLicense';
 import EditSoftware from './components/Software/EditSoftware';
+import LicenseListById from './components/LicenseList/LicenseListById';
 
 function App() {
   const { token, setToken, removeToken } = useToken();
@@ -49,6 +50,7 @@ function App() {
             <Route path="/softwares/:softwareId/users/:userId/licenses/:licenseId/edit" element={<EditLicense/>} />
             <Route path="/users" element={<UserList />} />
             <Route path="/users/:_id" element={<User />} />
+            <Route path="mylicenses" element={<LicenseListById />} />
           </Routes>
           <Logout removeToken={removeToken} /> 
         </>

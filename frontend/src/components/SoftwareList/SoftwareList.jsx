@@ -12,7 +12,8 @@ export default function SoftwareList() {
                 const getSoftwares = await fetch('http://localhost:3001/api/softwares', {
                     method: 'GET',
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 })
                 if(!getSoftwares.ok) throw new Error("Error fetching software list");

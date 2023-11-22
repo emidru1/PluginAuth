@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './License.css';
 import RemoveLicense from './RemoveLicense';
 
+
 export default function License() {
     const { _id, softwareId, userId } = useParams();
     const [ license, setLicense ] = useState(null);
@@ -19,7 +20,9 @@ export default function License() {
             const licenseData = await fetch(`http://localhost:3001/api/softwares/${softwareId}/users/${userId}/licenses/${_id}`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+
             }
         });
         if(!licenseData.ok) throw new Error("Could not fetch license data");

@@ -18,7 +18,8 @@ export default function RemoveLicense() {
                 const response = await fetch('http://localhost:3001/api/licenses', {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(toRemove)
             })

@@ -12,6 +12,7 @@ export default function NavBar() {
                 <li><Link to='/softwares'>Software</Link></li>
                 <li><Link to='/licenses'>Licenses</Link></li>
                 <li><Link to='/users'>Users</Link></li>
+                <li><Link to='/mylicenses'>My Licenses</Link></li>
             </ul>
         </div>
     );
