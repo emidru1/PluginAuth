@@ -249,6 +249,9 @@ app.get('/api/users/:id', authenticateToken, checkRole(['admin', 'premium', 'sta
     return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
+    if (req.user.role !== 'admin' && req.user.userId !== req.params.id) {
+      return res.status(403).json({ error: "Access denied: insufficient permisisons" });
+    }
     const user = await User.findById(req.params.id)
                             .populate('softwares')
                             .populate('licenses')
@@ -474,6 +477,9 @@ app.get('/api/users/:userId/licenses', authenticateToken, checkRole(['admin', 'p
     return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
+    if (req.user.role !== 'admin' && req.user.userId !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const result = await License.find({ userId: req.params.userId });
     if (result.length === 0) {
       return res.status(404).json({ error: "No licenses found with provided userId" });
