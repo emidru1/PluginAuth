@@ -18,6 +18,9 @@
   },
   "name": "pluginauth",
   "description": "pluginauth",
+  "engines": {
+    "node": "20.x"
+  },
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
