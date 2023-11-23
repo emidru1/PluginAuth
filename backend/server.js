@@ -78,6 +78,9 @@ app.get('/api/softwares/:softwareId/users/:userId/licenses/:licenseId', authenti
   }
 
   try {
+    if (req.user.role !== 'admin' && req.user.userId !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied: insufficient permissions" });
+    }
       const license = await License.findOne({ _id: req.params.licenseId, softwareId: req.params.softwareId, userId: req.params.userId });
 
       if (!license) {
@@ -478,7 +481,7 @@ app.get('/api/users/:userId/licenses', authenticateToken, checkRole(['admin', 'p
   }
   try {
     if (req.user.role !== 'admin' && req.user.userId !== req.params.userId) {
-      return res.status(403).json({ error: "Access denied" });
+      return res.status(403).json({ error: "Access denied: insufficient permissions" });
     }
     const result = await License.find({ userId: req.params.userId });
     if (result.length === 0) {
