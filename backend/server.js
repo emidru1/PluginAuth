@@ -146,11 +146,11 @@ app.post('/api/licenses', authenticateToken, checkRole(['admin']), async (req, r
 
 // Delete license from the database
 app.delete('/api/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
+  const licenseId = req.body._id;
   if (!mongoose.Types.ObjectId.isValid(licenseId)) {
     return res.status(400).send('Invalid licenseId provided.');
   }
   try {
-      const licenseId = req.body._id;
       if (!licenseId) {
           return res.status(400).json({ error: "Must provide license ID" });
       }
@@ -178,11 +178,12 @@ app.delete('/api/licenses', authenticateToken, checkRole(['admin']), async (req,
 // Frontend works fine, update all fields that are present (just like in POST request)
 // error catching
 app.put('/api/licenses', authenticateToken, checkRole(['admin']), async (req, res) => {
+  const licenseId = req.body._id;
+
   if (!ObjectId.isValid(licenseId)) {
     return res.status(400).send('Invalid licenseId provided.');
   }
   try {
-    const licenseId = req.body._id;
     if (!licenseId) {
       return res.status(400).json({ error: "Must provide license Id" });
     }
@@ -292,11 +293,11 @@ app.post('/api/users', authenticateToken, checkRole(['admin']), async (req, res)
 
 //Update user information
 app.put('/api/users', authenticateToken, checkRole(['admin']), async (req, res) => {
-  if (!ObjectId.isValid(req.body._id)) {
+  const userId = req.body.id;
+  if (!ObjectId.isValid(userId)) {
     return res.status(400).json({ error: "Invalid userId provided" });
   }
   try {
-    const userId = req.body._id;
     let updates = {};
     if (req.body.email) {
       updates.email = req.body.email;
@@ -319,22 +320,25 @@ app.put('/api/users', authenticateToken, checkRole(['admin']), async (req, res) 
   }
 });
 
-app.delete('/api/users', authenticateToken, checkRole(['admin']), async (req, res) => {
-  if (!ObjectId.isValid(req.body._id)) {
-    return res.status(400).json({ error: "Invalid userId provided" });
+app.delete('/api/users/:id', authenticateToken, checkRole(['admin']), async (req, res) => {
+  const userId = req.params.id;
+
+  if (!ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid userId provided" });
   }
+
   try {
-    const userId = req.body._id;
-    const result = await User.deleteOne({ _id: userId});
-    if(result.deletedCount === 0) {
-      return res.status(404).json({ error: "No users were deleted corresponding to that userId" });
-    }
-    return res.status(200).json({ message: "User deleted successfully" });
+      const result = await User.deleteOne({ _id: userId });
+      if (result.deletedCount === 0) {
+          return res.status(404).json({ error: "No users were deleted corresponding to that userId" });
+      }
+      return res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal Server Error'});
+      console.error(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Get all softwares
 app.get('/api/softwares', authenticateToken, checkRole(['admin', 'premium', 'standart']), async (req, res) => {
@@ -421,12 +425,13 @@ app.put('/api/softwares', authenticateToken, checkRole(['admin']), async (req, r
 });
 
 // Remove software from the database
-app.delete('/api/softwares', authenticateToken, checkRole(['admin']), async (req, res) => {
-  if (!ObjectId.isValid(req.body._id)) {
+app.delete('/api/softwares/:id', authenticateToken, checkRole(['admin']), async (req, res) => {
+  const softwareId = req.params.id;
+  if (!ObjectId.isValid(softwareId)) {
     return res.status(400).json({ error: "Invalid softwareId provided" });
   }
   try {
-    const result = await Software.deleteOne({ _id: req.body._id });
+    const result = await Software.deleteOne({ _id: softwareId });
     if(result.deletedCount === 0) {
       return res.status(404).json({ error: "No software entries were deleted in the database" });
     }

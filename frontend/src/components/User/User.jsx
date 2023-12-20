@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import './User.css';
+import { UserContext } from '../App/UserContext'; 
+import Modal from '../App/Modal'; 
 
 export default function User() {
     const { _id } = useParams();
     const [user, setUser] = useState({ email: '', role: '', licenses: [], softwares: [] });
     const { email, role, softwares, licenses } = user || {};
     const navigate = useNavigate();
+    const currentUser = useContext(UserContext); 
+    const [showModal, setShowModal] = useState(false); // State to control modal visibility
+    const [modalContent, setModalContent] = useState(''); // Content for the modal
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -15,7 +21,7 @@ export default function User() {
                 return;
             }
             try {
-                const userData = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/users/${_id}`, {
+                const userData = await fetch(`http://localhost:3001/api/users/${_id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -35,8 +41,38 @@ export default function User() {
     const handleClick = () => {
         navigate(-1);
     }
+    const handleDelete = async (_id) => {
+        if(window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                const response = await fetch(`http://localhost:3001/api/users/${_id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+    
+                if (!response.ok) {
+                    setModalContent('Error deleting user: ' + response.error);
+                    setShowModal(true);
+                    return;
+                }
+        
+                setModalContent('User deleted successfully');
+                setShowModal(true);
+                setTimeout(() => {
+                    setShowModal(false);
+                    navigate('/users');
+                }, 3000); // Close modal and redirect after 3 seconds
+            } catch (error) {
+                console.error('Error deleting user:', error);
+            }
+        }
+    };
+    const handleEdit = () => {
+        navigate(`/users/${_id}/edit`); // Navigate to the EditUser page
+    };
     return(
-        <div className="user-details">
+        <div className='centered-content'>
             <h1>User details</h1>
             { user && (
                 <ul>
@@ -70,9 +106,17 @@ export default function User() {
                     }
                 </ul>
             }
-
-            
-        <button onClick={handleClick}>Back</button>
+        {currentUser && currentUser.role === 'admin' &&  (
+        <>
+            <button onClick={() => handleDelete(_id)}>Delete User</button>
+            <button onClick={handleEdit}>Edit User</button>
+            <button onClick={handleClick}>Back</button>
+        </>
+        
+        )}
+        <Modal show={showModal} onClose={() => setShowModal(false)}>
+                <p>{modalContent}</p>
+            </Modal>
         </div>
     );
 }

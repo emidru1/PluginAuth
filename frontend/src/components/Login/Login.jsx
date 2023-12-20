@@ -5,7 +5,7 @@ import "./Login.css";
 import { Link, useNavigate } from 'react-router-dom';
 
 async function loginUser(credentials) {
-    return fetch('https://pluginauth-d6d40867cfab.herokuapp.com/login', {
+    return fetch('http://localhost:3001/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -39,7 +39,7 @@ export default function Login({setToken}) {
         }
     };
     return (
-        <div className="login-form">
+        <div className='centered-content'>
             <h1>PluginAuth</h1>
             <form onSubmit={handleSubmit}>
             <label>

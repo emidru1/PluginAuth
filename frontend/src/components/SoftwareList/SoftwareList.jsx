@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate }  from 'react-router-dom';
 import './SoftwareList.css';
-
+import { UserContext } from '../App/UserContext';
+import { useContext } from 'react';
 export default function SoftwareList() {
     const [softwares, setSoftware] = useState([]);
     const navigate = useNavigate();
+    const user = useContext(UserContext);
 
     useEffect(() => {
         const fetchSoftware = async () => {
             try {
-                const getSoftwares = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
+                const getSoftwares = await fetch('http://localhost:3001/api/softwares', {
                     method: 'GET',
                     headers: {
                         "Content-Type": "application/json",
@@ -30,7 +32,7 @@ export default function SoftwareList() {
         navigate('/softwares/addsoftware');
     }
     return (
-        <div className="software-list">
+        <div className='centered-content'>
             <h1>Software list</h1>
             <ul>
                 {
@@ -41,7 +43,9 @@ export default function SoftwareList() {
                     ))
                 }
             </ul>
+            {user && user.role === 'admin' && (
             <button onClick={handleAdd}>Add Software</button>
+            )}
         </div>
     );
 }

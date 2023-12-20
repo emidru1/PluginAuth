@@ -1,0 +1,22 @@
+.edit-user-container {
+    margin: auto;
+    width: 80%;
+    max-width: 500px;
+}
+
+.edit-user-form .form-field {
+    margin-bottom: 15px;
+}
+
+.edit-user-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.edit-user-form input, .edit-user-form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

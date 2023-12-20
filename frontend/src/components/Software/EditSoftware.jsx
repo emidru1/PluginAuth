@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
+import Modal from '../App/Modal'; // Import Modal
 
 export default function EditSoftware() {
     const { _id } = useParams();
     const location = useLocation();
     const software = location.state?.software || {};
     const { name, version, description, price } = software;
-    const [feedbackMessage, setFeedbackMessage] = useState('');
     const [softwareName, setSoftwareName] = useState(name);
     const [softwareVersion, setSoftwareVersion] = useState(version);
     const [softwareDescription, setSoftwareDescription] = useState(description);
     const [softwarePrice, setSoftwarePrice] = useState(price);
+    const [showModal, setShowModal] = useState(false); // State for modal visibility
+    const [modalContent, setModalContent] = useState(''); // Content for the modal
 
 
     const handleSubmit = async (e) => {
@@ -23,7 +25,7 @@ export default function EditSoftware() {
             price: softwarePrice
         }
         try {
-            const response = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
+            const response = await fetch('http://localhost:3001/api/softwares', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -33,17 +35,22 @@ export default function EditSoftware() {
             })
             if(!response.ok) throw new Error("Could not update software entry in the database");
     
+            // eslint-disable-next-line no-unused-vars
             const result = await response.json();
-            console.log('Software edited successfully:', result);
-            setFeedbackMessage(result.message);
+            setModalContent('Software edited successfully');
+            setShowModal(true);
+            setTimeout(() => {
+                setShowModal(false);
+                // Your redirect logic
+            }, 3000); // Close modal and redirect after 3 seconds
         } catch (err) {
-            console.log(err)
+            setModalContent(`Error: ${err.message}`);
+            setShowModal(true);
         }
     }
     return (
-       <div className='edit-software'>
+       <div className='centered-content'>
          <h1>Edit software - {name}</h1>
-         {feedbackMessage && <p>{feedbackMessage}</p>}
             <form onSubmit={handleSubmit}>
                 <label>
                     <p>Name</p>
@@ -66,6 +73,9 @@ export default function EditSoftware() {
                     <button type="submit">Submit</button>
                 </div>
             </form>
+            <Modal show={showModal} onClose={() => setShowModal(false)}>
+            <p>{modalContent}</p>
+         </Modal>
        </div>
     );
 }

@@ -1,8 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import Modal from '../App/Modal'; // Import Modal component
+import { useState } from 'react';
 
 export default function RemoveLicense() {
     const { _id } = useParams();
     const navigate = useNavigate();
+    const [showModal, setShowModal] = useState(false); // State to control modal visibility
+    const [modalContent, setModalContent] = useState(''); // Content for the modal
 
     const handleClick = async () => {
         if(!_id) {
@@ -15,7 +19,8 @@ export default function RemoveLicense() {
             }
             console.log(toRemove);
             try {
-                const response = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/licenses', {
+                // eslint-disable-next-line no-unused-vars
+                const response = await fetch('http://localhost:3001/api/licenses', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -23,11 +28,15 @@ export default function RemoveLicense() {
                 },
                 body: JSON.stringify(toRemove)
             })
-            if(!response.ok) throw new Error("Could not remove license entry from the database");
-            const result = await response.json();
-            console.log(result);
+            setModalContent('License deleted successfully');
+                setShowModal(true);
+                setTimeout(() => {
+                    setShowModal(false);
+                    navigate('/licenses');
+                }, 3000); // Close modal and redirect after 3 seconds
             } catch(err) {
-                console.log(err);
+                setModalContent(`Error: ${err.message}`);
+                setShowModal(true);
             }
 
         }
@@ -37,6 +46,11 @@ export default function RemoveLicense() {
     }
 
     return(
-        <button onClick={handleClick}>Delete</button>
+        <div>
+            <button onClick={handleClick}>Delete</button>
+            <Modal show={showModal} onClose={() => setShowModal(false)}>
+                <p>{modalContent}</p>
+            </Modal>
+        </div>
     );
 }

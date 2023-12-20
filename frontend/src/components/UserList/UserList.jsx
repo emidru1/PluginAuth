@@ -8,7 +8,7 @@ export default function UserList() {
     useEffect(() => {
         const fetchUserList = async () => {
             try {
-                const userList = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/users', {
+                const userList = await fetch('http://localhost:3001/api/users', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,13 +25,13 @@ export default function UserList() {
         fetchUserList();
     }, []);
     return (
-        <div className='user-list'>
+        <div className='centered-content'>
             <h1>User list</h1>
             <ul>
                 {
                     users.map((user) => (
                         <li key={user._id}>
-                            <Link to={`/users/${user._id}`}>{user._id}</Link>
+                            <Link to={`/users/${user._id}`}>{user.email}</Link>
                         </li>
                     ))
                 }

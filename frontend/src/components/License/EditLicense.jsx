@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
+import Modal from '../App/Modal'; // Import Modal component
 
 export default function EditLicense () {
     const { _id } = useParams();
@@ -14,12 +15,13 @@ export default function EditLicense () {
     const [licenseKey, setLicenseKey] = useState(key);
     const [licenseDuration, setLicenseDuration] = useState("");
     const [expiration, setExpiration] = useState(expirationDate);
-    const [feedbackMessage, setFeedbackMessage] = useState('');
+    const [showModal, setShowModal] = useState(false); // State to control modal visibility
+    const [modalContent, setModalContent] = useState(''); // Content for the modal
 
             //Should move these methods for fetching to a different component made for that purpose (method reusing)
             const loadUsers = async () => {
                 try {
-                    const fetchUsers = await fetch('https://your-heroku-app-name.herokuapp.com/api/users', {
+                    const fetchUsers = await fetch('http://localhost:3001/api/users', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -35,7 +37,7 @@ export default function EditLicense () {
             }
             const loadSoftwares = async () => {
                 try {
-                    const fetchSoftwares = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
+                    const fetchSoftwares = await fetch('http://localhost:3001/api/softwares', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -77,7 +79,8 @@ export default function EditLicense () {
                     expirationDate: expiration
                 };
                 try {
-                    const response = await fetch(`https://pluginauth-d6d40867cfab.herokuapp.com/api/licenses`, {
+                    // should use axios instead for better practices
+                    const response = await fetch(`http://localhost:3001/api/licenses`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -89,11 +92,11 @@ export default function EditLicense () {
                     if (!response.ok) {
                         throw new Error('Failed to edit license data');
                     }
-                    const result = await response.json();
-                    console.log('License edited successfully:', result);
-                    setFeedbackMessage(result.message);
+                    setModalContent('License edited successfully');
+                    setShowModal(true);
                 } catch (error) {
-                    console.error('Error submitting data:', error);
+                    setModalContent(`Error: ${error.message}`);
+                    setShowModal(true);
                 }
             }
 
@@ -103,9 +106,8 @@ export default function EditLicense () {
     }, []);
 
     return (
-        <div className="edit-license">
+        <div className='centered-content'>
             <h1>Edit license - {_id}</h1>
-            {feedbackMessage && <p>{feedbackMessage}</p>}
             <form onSubmit={handleSubmit}>
             <label>
                 <p>Software ID</p>
@@ -149,6 +151,9 @@ export default function EditLicense () {
                         <button type="submit">Submit</button>
                     </div>
             </form>
+            <Modal show={showModal} onClose={() => setShowModal(false)}>
+                <p>{modalContent}</p>
+            </Modal>
         </div>
     );
 }

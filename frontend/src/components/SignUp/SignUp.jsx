@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 async function signUpUser(credentials) {
-    return fetch('https://pluginauth-d6d40867cfab.herokuapp.com/signup', {
+    return fetch('http://localhost:3001/signup', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json' 
@@ -45,10 +45,10 @@ export default function SignUp({ setToken }) {
     }
 
     return (
-        <div className='signup-form'>
+        <div className='centered-content'>
             <form onSubmit={handleSubmit}>
                 <label>
-                    <p>Enter your Email address</p>
+                    <p className='centered-content'>Enter your Email address</p>
                     <input type="email" onChange={(e => setEmail(e.target.value))}/>
                 </label>
                 <label>

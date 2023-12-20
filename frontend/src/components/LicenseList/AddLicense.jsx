@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Modal from '../App/Modal'; // Import Modal component
 
 export default function AddLicense () {
     const [users, setUsers] = useState([]);
@@ -8,12 +9,13 @@ export default function AddLicense () {
     const [licenseKey, setLicenseKey] = useState("");
     const [licenseDuration, setLicenseDuration] = useState("");
     const [expirationDate, setExpirationDate] = useState("");
-    const [feedbackMessage, setFeedbackMessage] = useState('');
+    const [showModal, setShowModal] = useState(false); // State to control modal visibility
+    const [modalContent, setModalContent] = useState(''); // Content for the modal
 
             //Should move these methods for fetching to a different component made for that purpose (method reusing)
             const loadUsers = async () => {
                 try {
-                    const fetchUsers = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/users', {
+                    const fetchUsers = await fetch('http://localhost:3001/api/users', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -29,7 +31,7 @@ export default function AddLicense () {
             }
             const loadSoftwares = async () => {
                 try {
-                    const fetchSoftwares = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
+                    const fetchSoftwares = await fetch('http://localhost:3001/api/softwares', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -71,7 +73,7 @@ export default function AddLicense () {
                 };
             
                 try {
-                    const response = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/licenses', {
+                    const response = await fetch('http://localhost:3001/api/licenses', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -84,11 +86,11 @@ export default function AddLicense () {
                         throw new Error('Failed to submit license data');
                     }
             
-                    const result = await response.json();
-                    console.log('Data saved:', result);
-                    setFeedbackMessage(result.message);
+                    setModalContent('License added successfully');
+                    setShowModal(true);
                 } catch (error) {
-                    console.error('Error submitting data:', error);
+                    setModalContent(`Error: ${error.message}`);
+                    setShowModal(true);
                 }
             }
             
@@ -98,9 +100,8 @@ export default function AddLicense () {
             loadUsers();
     }, []);
     return (
-        <div className="create-license">
+        <div className='centered-content'>
             <h1>Create new license</h1>
-            {feedbackMessage && <p>{feedbackMessage}</p>}
             <form onSubmit={handleSubmit}>
                 <label>
                 <p>Software ID</p>
@@ -143,6 +144,9 @@ export default function AddLicense () {
                         <button type="submit">Submit</button>
                     </div>
             </form>
+            <Modal show={showModal} onClose={() => setShowModal(false)}>
+                <p>{modalContent}</p>
+            </Modal>
         </div>
     );
 }

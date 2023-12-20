@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import Modal from '../App/Modal'; // Import Modal component
 
 export default function AddSoftware () {
-    const [feedbackMessage, setFeedbackMessage] = useState('');
     const [name, setName] = useState('');
     const [version, setVersion] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [showModal, setShowModal] = useState(false); // State for modal visibility
+    const [modalContent, setModalContent] = useState(''); // Content for the modal
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,7 +20,7 @@ export default function AddSoftware () {
         }
 
         try {
-            const response = await fetch('https://pluginauth-d6d40867cfab.herokuapp.com/api/softwares', {
+            const response = await fetch('http://localhost:3001/api/softwares', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -29,19 +31,19 @@ export default function AddSoftware () {
 
             if(!response.ok) throw new Error("Could not add new software to the database");
 
+            // eslint-disable-next-line no-unused-vars
             const result = await response.json();
-
-            console.log(result.message);
-            setFeedbackMessage(result.message);
+            setModalContent('Software added successfully');
+            setShowModal(true);
         } catch(err) {
-            console.log(err)
+            setModalContent(`Error: ${err.message}`);
+            setShowModal(true);
         }
-
     }
+
     return(
-        <div className="create-software">
+        <div className='centered-content'>
             <h1>Create new software</h1>
-            {feedbackMessage && <p>{feedbackMessage}</p>}
             <form onSubmit={handleSubmit}>
                 <label>
                     <p>Name</p>
@@ -64,7 +66,9 @@ export default function AddSoftware () {
                     <button type="submit">Submit</button>
                 </div>
             </form>
-
+            <Modal show={showModal} onClose={() => setShowModal(false)}>
+                <p>{modalContent}</p>
+            </Modal>
         </div>
     );
 }
